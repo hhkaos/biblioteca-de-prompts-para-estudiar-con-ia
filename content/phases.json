@@ -1,0 +1,86 @@
+{
+  "phases": [
+    {
+      "id": "iniciar",
+      "name": "Iniciarse",
+      "icon": "🌱",
+      "description": "Despertar interés, activar conocimientos previos y preparar el terreno para aprender.",
+      "examples": [
+        "curiosidad-antes-de-aprender",
+        "metacognicion-inicial",
+        "dar-contexto",
+        "plan-aprendizaje",
+        "fuentes-confiables",
+        "resumeme-esto",
+        "guia-interactiva",
+        "glosario-terminos"
+      ]
+    },
+    {
+      "id": "organizar",
+      "name": "Organizarse",
+      "icon": "🧭",
+      "description": "Estructurar, adaptar y transformar recursos para que estudiar sea más claro y manejable.",
+      "examples": [
+        "glosario-terminos",
+        "tecnicas-estudio",
+        "adaptar-contenido",
+        "cambiar-formato",
+        "diagramas-mapas",
+        "podcast-estudio"
+      ]
+    },
+    {
+      "id": "comprender",
+      "name": "Comprender",
+      "icon": "💡",
+      "description": "Construir significado, conectar ideas nuevas con lo que ya se sabe y resolver dudas.",
+      "examples": [
+        "tecnicas-estudio",
+        "cambiar-formato",
+        "diagramas-mapas",
+        "resumeme-esto"
+      ]
+    },
+    {
+      "id": "memorizar",
+      "name": "Memorizar",
+      "icon": "🧠",
+      "description": "Consolidar y retener contenido con técnicas de recuerdo y práctica activa.",
+      "examples": [
+        "glosario-terminos",
+        "podcast-estudio"
+      ]
+    },
+    {
+      "id": "reflexionar",
+      "name": "Reflexionar",
+      "icon": "🔎",
+      "description": "Cuestionar, argumentar y revisar ideas con pensamiento crítico.",
+      "examples": [
+        "metacognicion-inicial",
+        "fuentes-confiables"
+      ]
+    },
+    {
+      "id": "evaluar",
+      "name": "Evaluar",
+      "icon": "✅",
+      "description": "Comprobar avances y detectar lagunas para mejorar el aprendizaje.",
+      "examples": [
+        "guia-interactiva",
+        "tecnicas-estudio"
+      ]
+    },
+    {
+      "id": "explorar",
+      "name": "Explorar",
+      "icon": "🚀",
+      "description": "Ampliar el tema, abrir nuevas preguntas y conectar con áreas relacionadas.",
+      "examples": [
+        "fuentes-confiables",
+        "plan-aprendizaje"
+      ]
+    }
+  ]
+}

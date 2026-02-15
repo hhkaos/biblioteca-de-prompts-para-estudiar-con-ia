@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Biblioteca interactiva de prompts educativos por fases del aprendizaje para alumnado y familias."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Biblioteca de Prompts Educativos" />
+    <meta
+      property="og:description"
+      content="Biblioteca interactiva de prompts educativos por fases del aprendizaje para alumnado y familias."
+    />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Biblioteca de Prompts Educativos" />
+    <meta
+      name="twitter:description"
+      content="Biblioteca interactiva de prompts educativos por fases del aprendizaje para alumnado y familias."
+    />
+    <meta name="twitter:image" content="" />
+    <title>Biblioteca de Prompts Educativos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-shape shape-a"></div>
+    <div class="background-shape shape-b"></div>
+
+    <header class="hero">
+      <p class="eyebrow">Exprimiendo la Inteligencia Artificial para aprender mejor</p>
+      <h1>Biblioteca de Prompts para estudiar</h1>
+      <p class="subtitle">Elige una fase del aprendizaje, abre un ejemplo y adapta la plantilla antes de copiarla en tu IA favorita.</p>
+      <div id="phase-radios" class="phase-radios" role="radiogroup" aria-label="Fase del aprendizaje"></div>
+      <p id="phase-description" class="phase-description"></p>
+    </header>
+
+    <main class="layout">
+      <section id="panel-right" class="panel panel-right is-hidden">
+        <article id="example-view" class="example-view">
+          <h2>Selecciona un ejemplo</h2>
+          <p>El detalle aparecerá aquí cuando pulses una tarjeta.</p>
+        </article>
+
+        <section id="detail-tabs" class="tabs-wrap hidden" aria-live="polite">
+          <div class="tabs">
+            <button type="button" class="tab-button active" data-tab="summary">
+              <i class="fa-regular fa-lightbulb icon-inline" aria-hidden="true"></i>
+              Resumen
+            </button>
+            <button type="button" class="tab-button" data-tab="prompt">
+              <i class="fa-regular fa-pen-to-square icon-inline" aria-hidden="true"></i>
+              Plantilla
+            </button>
+          </div>
+
+          <section id="tab-summary" class="tab-panel active"></section>
+
+          <section id="tab-prompt" class="tab-panel">
+            <div class="editor-head">
+              <h3>Plantilla editable</h3>
+              <button id="copy-button" type="button">
+                <i class="fa-regular fa-copy icon-inline" aria-hidden="true"></i>
+                Copiar plantilla
+              </button>
+            </div>
+            <p id="copy-feedback" class="copy-feedback hidden" role="status" aria-live="polite"></p>
+            <textarea id="prompt-textarea" spellcheck="false"></textarea>
+            <section id="prompt-adjustments" class="prompt-adjustments hidden"></section>
+          </section>
+        </section>
+
+        <section id="collaboration-bar" class="collaboration-bar hidden" aria-label="Colaborar con mejoras">
+          <a id="collab-mailto" class="collab-button" href="#" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-envelope icon-inline" aria-hidden="true"></i>
+            Sugerir mejora
+          </a>
+          <details class="collab-socials">
+            <summary class="collab-button">
+              <i class="fa-solid fa-hashtag icon-inline" aria-hidden="true"></i>
+              Comentar en redes
+            </summary>
+            <div id="collab-social-links" class="collab-social-links"></div>
+          </details>
+          <a
+            id="collab-telegram"
+            class="collab-button"
+            href="https://t.me/hhkaos"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-brands fa-telegram icon-inline" aria-hidden="true"></i>
+            Contactar por Telegram
+          </a>
+        </section>
+      </section>
+    </main>
+
+    <footer class="cards-footer-wrap">
+      <div class="cards-footer-inner">
+        <h2>Galería de ejemplos</h2>
+        <div id="example-cards-footer" class="cards cards-footer" aria-live="polite"></div>
+      </div>
+    </footer>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

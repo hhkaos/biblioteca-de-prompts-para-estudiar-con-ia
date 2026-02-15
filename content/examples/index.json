@@ -1,0 +1,95 @@
+{
+  "examples": [
+    {
+      "id": "curiosidad-antes-de-aprender",
+      "title": "Despertar la curiosidad",
+      "summary": "Para abrir un tema nuevo conectándolo con la vida diaria antes de estudiar en profundidad.",
+      "image": "content/examples/images/curiosidad-antes-de-aprender.webp",
+      "file": "content/examples/curiosidad-antes-de-aprender.md"
+    },
+    {
+      "id": "metacognicion-inicial",
+      "title": "Metacognición inicial",
+      "summary": "Para diagnosticar punto de partida (qué se sabe), intereses y forma de aprender al inicio.",
+      "image": "content/examples/images/metacognicion-inicial.webp",
+      "file": "content/examples/metacognicion-inicial.md"
+    },
+    {
+      "id": "dar-contexto",
+      "title": "Dar contexto antes de profundizar",
+      "summary": "Para crear un mapa general del tema y evitar confusiones tempranas.",
+      "image": "content/examples/images/dar-contexto.webp",
+      "file": "content/examples/dar-contexto.md"
+    },
+    {
+      "id": "plan-aprendizaje",
+      "title": "Crear un plan de aprendizaje",
+      "summary": "Para convertir curiosidad en etapas claras con objetivos y seguimiento.",
+      "image": "content/examples/images/plan-aprendizaje.webp",
+      "file": "content/examples/plan-aprendizaje.md"
+    },
+    {
+      "id": "fuentes-confiables",
+      "title": "Descubrir fuentes fiables",
+      "summary": "Para filtrar recursos por credibilidad y evitar ruido de baja calidad.",
+      "image": "content/examples/images/fuentes-confiables.webp",
+      "file": "content/examples/fuentes-confiables.md"
+    },
+    {
+      "id": "resumeme-esto",
+      "title": "Resumir contenidos",
+      "summary": "Para transformar textos largos en resúmenes claros y estudiables.",
+      "image": "content/examples/images/resumeme-esto.webp",
+      "file": "content/examples/resumeme-esto.md"
+    },
+    {
+      "id": "guia-interactiva",
+      "title": "Crear una guía interactiva",
+      "summary": "Para aprender una tarea en pasos cortos con comprobaciones.",
+      "image": "content/examples/images/guia-interactiva.webp",
+      "file": "content/examples/guia-interactiva.md"
+    },
+    {
+      "id": "glosario-terminos",
+      "title": "Crear glosario de términos",
+      "summary": "Para fijar vocabulario clave y reducir confusiones entre conceptos.",
+      "image": "content/examples/images/glosario-terminos.webp",
+      "file": "content/examples/glosario-terminos.md"
+    },
+    {
+      "id": "tecnicas-estudio",
+      "title": "Explorar técnicas de estudio",
+      "summary": "Para detectar bloqueos de organización y aplicar estrategias concretas.",
+      "image": "content/examples/images/tecnicas-estudio.webp",
+      "file": "content/examples/tecnicas-estudio.md"
+    },
+    {
+      "id": "adaptar-contenido",
+      "title": "Adaptar contenido",
+      "summary": "Para hacer comprensible un recurso difícil sin alterar su significado.",
+      "image": "content/examples/images/adaptar-contenido.webp",
+      "file": "content/examples/adaptar-contenido.md"
+    },
+    {
+      "id": "cambiar-formato",
+      "title": "Cambiar formato de contenidos",
+      "summary": "Para mantener contenido y reorganizarlo en un formato más usable.",
+      "image": "content/examples/images/cambiar-formato.webp",
+      "file": "content/examples/cambiar-formato.md"
+    },
+    {
+      "id": "diagramas-mapas",
+      "title": "Crear diagramas o mapas mentales",
+      "summary": "Para visualizar relaciones, jerarquías y secuencias de forma clara.",
+      "image": "content/examples/images/diagramas-mapas.webp",
+      "file": "content/examples/diagramas-mapas.md"
+    },
+    {
+      "id": "podcast-estudio",
+      "title": "Transformar contenido en podcast",
+      "summary": "Para repasar escuchando con una narrativa clara y estructurada.",
+      "image": "content/examples/images/podcast-estudio.webp",
+      "file": "content/examples/podcast-estudio.md"
+    }
+  ]
+}
