@@ -18,7 +18,7 @@ Repositorio para familias y alumnado con plantillas de prompts organizadas por f
 La app usa `fetch`, por lo que hay que servirla con un servidor local (no abrir solo el archivo).
 
 ```bash
-cd /Users/ral97612/workspace/ejercicios-ia
+cd /Users/ral97612/workspace/biblioteca-de-prompts-para-estudiar-con-ia
 python3 -m http.server 8000
 ```
 
@@ -76,4 +76,4 @@ Pasos:
 4. Espera a que termine el workflow `Deploy to GitHub Pages` en la pestaña `Actions`.
 
 URL de publicación para este repo:
-- `https://hhkaos.github.io/ejercicios-ia/app/`
+- `https://hhkaos.github.io/biblioteca-de-prompts-para-estudiar-con-ia/app/`
