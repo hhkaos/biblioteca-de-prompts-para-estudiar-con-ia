@@ -3,6 +3,7 @@
 Repositorio para familias y alumnado con plantillas de prompts organizadas por fase del aprendizaje.
 
 ## Objetivo
+
 - Inspirar qué se puede hacer con IA en distintas situaciones de aprendizaje.
 - Ofrecer prompts como plantillas reutilizables y personalizables.
 - Mantener contenido editable, modular y escalable.
