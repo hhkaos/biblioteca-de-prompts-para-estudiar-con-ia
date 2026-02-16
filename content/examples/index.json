@@ -134,6 +134,41 @@
       "file": "content/examples/ejemplos-practicos.md"
     },
     {
+      "id": "crear-canciones-memorizar",
+      "title": "Crear canciones para memorizar",
+      "summary": "Crear canciones que te ayuden a memorizar datos.",
+      "image": "content/examples/images/crear-canciones-memorizar.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "generar-tarjetas-estudio",
+      "title": "Generar tarjetas de estudio",
+      "summary": "Crear tarjetas de estudio con concepto, definición e imágenes o ejemplos para reforzar la memoria.",
+      "image": "content/examples/images/generar-tarjetas-estudio.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "crear-reglas-mnemotecnicas",
+      "title": "Crear reglas mnemotécnicas",
+      "summary": "Diseñar reglas mnemotécnicas que faciliten recordar información clave.",
+      "image": "content/examples/images/crear-reglas-mnemotecnicas.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "crear-historias-memorizar",
+      "title": "Crear historias para memorizar",
+      "summary": "Crear historias que ayuden a memorizar de forma más natural.",
+      "image": "content/examples/images/crear-historias-memorizar.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "crear-rimas-poemas-memorizar",
+      "title": "Crear rimas o poemas para memorizar",
+      "summary": "Generar rimas o poemas pegadizos para hacer más fácil y divertido memorizar.",
+      "image": "content/examples/images/crear-rimas-poemas-memorizar.webp",
+      "status": "under-construction"
+    },
+    {
       "id": "resolver-dudas",
       "title": "Encontrar respuestas a dudas",
       "summary": "Para resolver dudas concretas con explicaciones claras, contexto y ejemplos.",

@@ -34,7 +34,7 @@
       "id": "comprender",
       "name": "Comprender",
       "icon": "💡",
-      "description": "Construir significado, conectar ideas nuevas con lo que ya se sabe y resolver dudas.",
+      "description": "Entender el significado, conceptos, hechos o elementos clave. Integrando la información nueva con los conocimientos previos y darle un sentido o explicación personal, ayudando a internalizar las ideas, conocimientos o valores.",
       "examples": [
         "tecnicas-estudio",
         "diagramas-mapas",
@@ -52,10 +52,17 @@
       "id": "memorizar",
       "name": "Memorizar",
       "icon": "🧠",
-      "description": "Consolidar y retener contenido con técnicas de recuerdo y práctica activa.",
+      "description": "Ayudar a retener y afianzar contenidos de manera más atractiva y efectiva con técnicas y práctica activa.",
       "examples": [
         "glosario-terminos",
-        "podcast-estudio"
+        "tecnicas-estudio",
+        "podcast-estudio",
+        "ejemplos-practicos",
+        "crear-canciones-memorizar",
+        "generar-tarjetas-estudio",
+        "crear-reglas-mnemotecnicas",
+        "crear-historias-memorizar",
+        "crear-rimas-poemas-memorizar"
       ]
     },
     {

@@ -2,8 +2,11 @@ import { collaborationConfig } from "./collab-config.js";
 
 const phaseRadios = document.getElementById("phase-radios");
 const phaseSelect = document.getElementById("phase-select");
-const phaseDescription = document.getElementById("phase-description");
+const layout = document.querySelector(".layout");
+const galleryTitle = document.getElementById("gallery-title");
+const galleryDescription = document.getElementById("gallery-description");
 const exampleCardsFooter = document.getElementById("example-cards-footer");
+const examplesCount = document.getElementById("examples-count");
 const panelRight = document.getElementById("panel-right");
 const exampleView = document.getElementById("example-view");
 const detailTabs = document.getElementById("detail-tabs");
@@ -16,10 +19,22 @@ const collaborationBar = document.getElementById("collaboration-bar");
 const collabMailto = document.getElementById("collab-mailto");
 const collabSocialLinks = document.getElementById("collab-social-links");
 const collabTelegram = document.getElementById("collab-telegram");
+const panelToggleButton = document.getElementById("panel-toggle-button");
+const aboutButton = document.getElementById("about-button");
+const aboutModal = document.getElementById("about-modal");
+const aboutCloseButton = document.getElementById("about-close-button");
 
 const APP_TITLE = "Biblioteca de Prompts Educativos";
 const DEFAULT_DESCRIPTION =
   "Biblioteca interactiva de prompts educativos por fases del aprendizaje para alumnado y familias.";
+const UNDER_CONSTRUCTION_LABEL = "En construcción";
+const SPECIAL_COLLAB_CARD = {
+  id: "__missing-example__",
+  title: "¿Echas en falta alguna?",
+  summary: "Buscamos personas que colaboren para ampliar y mejorar esta biblioteca.",
+  chip: "Colabora",
+  image: "content/examples/images/colabora-echas-alguna-en-falta.webp"
+};
 const VALID_TABS = new Set(["summary", "prompt"]);
 const SOCIAL_NETWORK_DEFINITIONS = [
   {
@@ -56,10 +71,12 @@ const SOCIAL_NETWORK_DEFINITIONS = [
 
 let phases = [];
 let exampleById = {};
+let allExamples = [];
 let currentPhase = null;
 let currentExampleId = "";
 let promptTextareaAutoResizeEnabled = true;
 let promptTextareaPointerDownHeight = null;
+let modalLastFocus = null;
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -71,6 +88,7 @@ async function loadData() {
   const examplesData = await examplesRes.json();
 
   phases = phaseData.phases;
+  allExamples = examplesData.examples;
   exampleById = Object.fromEntries(examplesData.examples.map((item) => [item.id, item]));
 }
 
@@ -286,10 +304,10 @@ function activateTab(tabId, { updateUrl = false, urlMode = "push" } = {}) {
     requestAnimationFrame(() => autosizePromptTextarea({ force: true }));
   }
 
-  if (updateUrl && currentPhase) {
+  if (updateUrl) {
     writeUrlState(
       {
-        phaseId: currentPhase.id,
+        phaseId: currentPhase ? currentPhase.id : "",
         exampleId: currentExampleId,
         tabId: safeTabId
       },
@@ -312,11 +330,74 @@ function setActiveExample(exampleId) {
 }
 
 function resetDetail() {
-  panelRight.classList.add("is-hidden");
+  setPanelVisibility(false);
   detailTabs.classList.add("hidden");
   collaborationBar.classList.add("hidden");
   copyFeedback.textContent = "";
   copyFeedback.classList.add("hidden");
+}
+
+function isPanelVisible() {
+  return !panelRight.classList.contains("is-hidden") && !(layout && layout.classList.contains("is-empty"));
+}
+
+function updatePanelToggleButton() {
+  if (!panelToggleButton) {
+    return;
+  }
+
+  if (!currentExampleId) {
+    panelToggleButton.classList.add("hidden");
+    return;
+  }
+
+  const visible = isPanelVisible();
+  if (!visible) {
+    panelToggleButton.classList.add("hidden");
+    return;
+  }
+
+  panelToggleButton.classList.remove("hidden");
+  const actionLabel = visible ? "Ocultar panel" : "Mostrar panel";
+  panelToggleButton.setAttribute("aria-label", actionLabel);
+  panelToggleButton.setAttribute("title", actionLabel);
+  const srOnlyLabel = panelToggleButton.querySelector(".sr-only");
+  if (srOnlyLabel) {
+    srOnlyLabel.textContent = actionLabel;
+  }
+  panelToggleButton.setAttribute("aria-expanded", String(visible));
+}
+
+function setPanelVisibility(visible) {
+  panelRight.classList.toggle("is-hidden", !visible);
+  if (layout) {
+    layout.classList.toggle("is-empty", !visible);
+  }
+  updatePanelToggleButton();
+}
+
+function openAboutModal() {
+  if (!aboutModal) {
+    return;
+  }
+  modalLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  aboutModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  if (aboutCloseButton) {
+    aboutCloseButton.focus();
+  }
+}
+
+function closeAboutModal() {
+  if (!aboutModal || aboutModal.classList.contains("hidden")) {
+    return;
+  }
+  aboutModal.classList.add("hidden");
+  document.body.style.overflow = "";
+  if (modalLastFocus) {
+    modalLastFocus.focus();
+  }
+  modalLastFocus = null;
 }
 
 function scrollToDetailPanel() {
@@ -343,8 +424,22 @@ function getPhaseExamples(phase) {
     .filter(Boolean);
 }
 
+function isExampleUnderConstruction(example) {
+  return (example.status || "").trim().toLowerCase() === "under-construction";
+}
+
+function isExampleLoadable(example) {
+  return Boolean(example && example.file && !isExampleUnderConstruction(example));
+}
+
 function phaseContainsExample(phase, exampleId) {
-  return Boolean(phase && exampleId && phase.examples.includes(exampleId));
+  if (!exampleId) {
+    return false;
+  }
+  if (!phase) {
+    return Boolean(exampleById[exampleId]);
+  }
+  return phase.examples.includes(exampleId);
 }
 
 function findPhaseById(phaseId) {
@@ -361,7 +456,11 @@ function sanitizeHandle(handle) {
 
 function buildExampleUrl(phaseId, exampleId, tabId = "summary") {
   const url = new URL(window.location.href);
-  url.searchParams.set("phase", phaseId);
+  if (phaseId) {
+    url.searchParams.set("phase", phaseId);
+  } else {
+    url.searchParams.delete("phase");
+  }
   url.searchParams.set("example", exampleId);
   url.searchParams.set("tab", VALID_TABS.has(tabId) ? tabId : "summary");
   return url.toString();
@@ -427,10 +526,7 @@ function configureTelegramLink(example, exampleUrl) {
 }
 
 function updateCollaborationBar(example) {
-  if (!currentPhase) {
-    return;
-  }
-  const exampleUrl = buildExampleUrl(currentPhase.id, example.id, getCurrentTabId());
+  const exampleUrl = buildExampleUrl(currentPhase ? currentPhase.id : "", example.id, getCurrentTabId());
   configureMailtoLink(example, exampleUrl);
   renderSocialLinks(example, exampleUrl);
   configureTelegramLink(example, exampleUrl);
@@ -438,13 +534,17 @@ function updateCollaborationBar(example) {
 }
 
 function setSelectedPhaseRadio(phaseId) {
+  for (const radio of phaseRadios.querySelectorAll('input[name="phase"]')) {
+    radio.checked = false;
+  }
+
   const selectedRadio = document.getElementById(`phase-${phaseId}`);
   if (selectedRadio) {
     selectedRadio.checked = true;
   }
 
   if (phaseSelect) {
-    phaseSelect.value = phaseId;
+    phaseSelect.value = phaseId || "";
   }
 }
 
@@ -457,6 +557,15 @@ function getPhaseFallbackImage(phase) {
 }
 
 function updateMetadataForPhase(phase) {
+  if (!phase) {
+    updatePageMetadata({
+      title: APP_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      imageUrl: buildAbsoluteImageUrl(allExamples.find((example) => example.image && example.image.trim())?.image || "")
+    });
+    return;
+  }
+
   updatePageMetadata({
     title: `${phase.name} | ${APP_TITLE}`,
     description: phase.description || DEFAULT_DESCRIPTION,
@@ -478,15 +587,26 @@ function renderCard(example, target) {
   card.type = "button";
   card.className = "card";
   card.dataset.exampleId = example.id;
+  const isUnderConstruction = isExampleUnderConstruction(example);
+
+  if (isUnderConstruction) {
+    card.classList.add("is-under-construction");
+    card.disabled = true;
+    card.setAttribute("aria-disabled", "true");
+    card.title = UNDER_CONSTRUCTION_LABEL;
+  }
 
   const hasImage = Boolean(example.image && example.image.trim());
   const mediaStyle = hasImage
     ? `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12)), url('../${example.image}'); color: #ffffff;`
     : "";
   const placeholderText = hasImage ? "" : "Imagen IA pendiente";
+  const chipHtml = isUnderConstruction
+    ? `<span class="card-chip card-chip-overlay">${UNDER_CONSTRUCTION_LABEL}</span>`
+    : "";
 
   card.innerHTML = `
-    <div class="card-media" style="${mediaStyle}">${placeholderText}</div>
+    <div class="card-media" style="${mediaStyle}">${chipHtml}${placeholderText}</div>
     <div class="card-body">
       <h3 class="card-title">${escapeHtml(example.title)}</h3>
       <p class="card-summary">${escapeHtml(example.summary || "")}</p>
@@ -494,32 +614,72 @@ function renderCard(example, target) {
   `;
 
   card.addEventListener("click", () => {
+    if (isUnderConstruction) {
+      return;
+    }
     loadExample(example, { tabId: "summary", scroll: true, updateUrl: true, urlMode: "push" });
   });
   target.appendChild(card);
 }
 
+function renderSpecialCollaborationCard(target) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "card card-special";
+  card.dataset.exampleId = SPECIAL_COLLAB_CARD.id;
+  const mediaStyle = `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.08)), url('../${SPECIAL_COLLAB_CARD.image}'); color: #ffffff;`;
+  card.innerHTML = `
+    <div class="card-media" style="${mediaStyle}">
+      <span class="card-chip card-chip-overlay">${escapeHtml(SPECIAL_COLLAB_CARD.chip)}</span>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">${escapeHtml(SPECIAL_COLLAB_CARD.title)}</h3>
+      <p class="card-summary">${escapeHtml(SPECIAL_COLLAB_CARD.summary)}</p>
+    </div>
+  `;
+
+  card.addEventListener("click", () => {
+    openAboutModal();
+  });
+
+  target.appendChild(card);
+}
+
 function renderCards(phase) {
-  const examples = getPhaseExamples(phase);
+  const examples = phase ? getPhaseExamples(phase) : allExamples;
   exampleCardsFooter.innerHTML = "";
+  if (examplesCount) {
+    const label = examples.length === 1 ? "ejemplo" : "ejemplos";
+    examplesCount.textContent = `${examples.length} ${label} mostrados`;
+  }
 
   for (const example of examples) {
     renderCard(example, exampleCardsFooter);
   }
+  renderSpecialCollaborationCard(exampleCardsFooter);
 }
 
 function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, urlMode = "push" } = {}) {
-  currentPhase = phase;
-  phaseDescription.textContent = phase.description;
-  renderCards(phase);
-  setSelectedPhaseRadio(phase.id);
+  currentPhase = phase || null;
+  if (galleryTitle) {
+    galleryTitle.textContent = currentPhase
+      ? `Galería de ejemplos para ${currentPhase.name.toLowerCase()}`
+      : "Galería de ejemplos";
+  }
+  if (galleryDescription) {
+    galleryDescription.textContent = currentPhase
+      ? currentPhase.description
+      : "Mostrando todos los ejemplos, sin filtro por fase.";
+  }
+  renderCards(currentPhase);
+  setSelectedPhaseRadio(currentPhase ? currentPhase.id : "");
 
   if (resetDetailPanel) {
     currentExampleId = "";
     setActiveExample("");
     resetDetail();
     activateTab("summary");
-    updateMetadataForPhase(phase);
+    updateMetadataForPhase(currentPhase);
   } else {
     setActiveExample("");
   }
@@ -527,7 +687,7 @@ function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, url
   if (updateUrl) {
     writeUrlState(
       {
-        phaseId: phase.id,
+        phaseId: currentPhase ? currentPhase.id : "",
         exampleId: currentExampleId,
         tabId: getCurrentTabId()
       },
@@ -540,6 +700,10 @@ function renderPhaseRadios() {
   phaseRadios.innerHTML = "";
   if (phaseSelect) {
     phaseSelect.innerHTML = "";
+    const allPhasesOption = document.createElement("option");
+    allPhasesOption.value = "";
+    allPhasesOption.textContent = "Todas las fases";
+    phaseSelect.appendChild(allPhasesOption);
   }
 
   for (const phase of phases) {
@@ -573,9 +737,37 @@ function renderPhaseRadios() {
     setCurrentPhase(phase, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
   });
 
+  phaseRadios.addEventListener("click", (event) => {
+    let input = null;
+    if (event.target instanceof HTMLInputElement && event.target.name === "phase") {
+      input = event.target;
+    } else if (event.target instanceof Element) {
+      const label = event.target.closest("label");
+      const forId = label ? label.getAttribute("for") : "";
+      if (forId) {
+        const associated = document.getElementById(forId);
+        if (associated instanceof HTMLInputElement && associated.name === "phase") {
+          input = associated;
+        }
+      }
+    }
+
+    if (!input || !currentPhase || input.value !== currentPhase.id) {
+      return;
+    }
+
+    event.preventDefault();
+    setCurrentPhase(null, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
+  });
+
   if (phaseSelect) {
     phaseSelect.addEventListener("change", (event) => {
       if (!(event.target instanceof HTMLSelectElement)) {
+        return;
+      }
+
+      if (!event.target.value) {
+        setCurrentPhase(null, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
         return;
       }
 
@@ -640,17 +832,17 @@ async function loadExample(
     promptAdjustments.innerHTML = "";
     promptAdjustments.classList.add("hidden");
   }
-  panelRight.classList.remove("is-hidden");
+  setPanelVisibility(true);
   detailTabs.classList.remove("hidden");
   copyFeedback.textContent = "";
   copyFeedback.classList.add("hidden");
   activateTab(tabId);
   updateCollaborationBar(example);
 
-  if (updateUrl && currentPhase) {
+  if (updateUrl) {
     writeUrlState(
       {
-        phaseId: currentPhase.id,
+        phaseId: currentPhase ? currentPhase.id : "",
         exampleId: example.id,
         tabId: getCurrentTabId()
       },
@@ -710,22 +902,60 @@ window.addEventListener("resize", () => {
   }
 });
 
+if (panelToggleButton) {
+  panelToggleButton.addEventListener("click", () => {
+    if (!currentExampleId) {
+      return;
+    }
+    const shouldShow = !isPanelVisible();
+    setPanelVisibility(shouldShow);
+    if (shouldShow) {
+      scrollToDetailPanel();
+    }
+  });
+}
+
+if (aboutButton) {
+  aboutButton.addEventListener("click", () => {
+    openAboutModal();
+  });
+}
+
+if (aboutCloseButton) {
+  aboutCloseButton.addEventListener("click", () => {
+    closeAboutModal();
+  });
+}
+
+if (aboutModal) {
+  aboutModal.addEventListener("click", (event) => {
+    if (event.target === aboutModal) {
+      closeAboutModal();
+    }
+  });
+}
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeAboutModal();
+  }
+});
+
 async function applyUrlState({ urlMode = "replace" } = {}) {
   const { phaseId, exampleId, tabId } = readUrlState();
   const requestedExample = exampleId ? exampleById[exampleId] : null;
 
   let phase = findPhaseById(phaseId);
-  if (requestedExample && (!phase || !phaseContainsExample(phase, requestedExample.id))) {
+  if (requestedExample && phase && !phaseContainsExample(phase, requestedExample.id)) {
     phase = findFirstPhaseForExample(requestedExample.id);
   }
-  if (!phase) {
-    phase = phases[0] || null;
-  }
-  if (!phase) {
+  if (!phases.length && !allExamples.length) {
     return;
   }
 
-  const hasValidExample = Boolean(requestedExample && phaseContainsExample(phase, requestedExample.id));
+  const hasValidExample = Boolean(
+    requestedExample && phaseContainsExample(phase, requestedExample.id) && isExampleLoadable(requestedExample)
+  );
 
   setCurrentPhase(phase, { resetDetailPanel: !hasValidExample, updateUrl: false });
 
@@ -741,7 +971,7 @@ async function applyUrlState({ urlMode = "replace" } = {}) {
 
   writeUrlState(
     {
-      phaseId: phase.id,
+      phaseId: phase ? phase.id : "",
       exampleId: hasValidExample ? requestedExample.id : "",
       tabId: hasValidExample ? tabId : "summary"
     },

@@ -40,18 +40,31 @@
     <div class="background-shape shape-b"></div>
 
     <header class="hero">
+      <div class="hero-actions">
+        <button id="about-button" class="hero-action-link" type="button">Sobre la app</button>
+      </div>
       <p class="eyebrow">Exprimiendo la IA para aprender mejor</p>
       <h1><a class="home-link" href="./index.html">Prompts para estudiar</a></h1>
-      <p class="subtitle">Elige una fase del aprendizaje, abre un ejemplo y adapta la plantilla antes de copiarla en tu IA favorita.</p>
       <div id="phase-radios" class="phase-radios" role="radiogroup" aria-label="Fase del aprendizaje"></div>
       <div class="phase-select-wrap">
         <label class="phase-select-label" for="phase-select">Fase del aprendizaje</label>
         <select id="phase-select" class="phase-select" aria-label="Fase del aprendizaje"></select>
       </div>
-      <p id="phase-description" class="phase-description"></p>
     </header>
 
     <main class="layout">
+      <button
+        id="panel-toggle-button"
+        class="panel-toggle-button hidden"
+        type="button"
+        aria-expanded="true"
+        aria-label="Ocultar panel"
+        title="Ocultar panel"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        <span class="sr-only">Ocultar panel</span>
+      </button>
+
       <section id="panel-right" class="panel panel-right is-hidden">
         <article id="example-view" class="example-view">
           <h2>Selecciona un ejemplo</h2>
@@ -114,10 +127,38 @@
 
     <footer class="cards-footer-wrap">
       <div class="cards-footer-inner">
-        <h2>Galería de ejemplos</h2>
+        <h2 id="gallery-title">Galería de ejemplos</h2>
+        <p id="gallery-description" class="gallery-description" aria-live="polite"></p>
+        <p id="examples-count" class="examples-count" aria-live="polite"></p>
         <div id="example-cards-footer" class="cards cards-footer" aria-live="polite"></div>
       </div>
     </footer>
+
+    <div id="about-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="about-modal-title">Sobre esta app</h2>
+          <button id="about-close-button" class="modal-close" type="button" aria-label="Cerrar ventana">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Insturcciones</strong></p>
+          <ol>
+            <li>Elige una fase del aprendizaje (opcional)</li>
+            <li>Selecciona un ejemplo</li>
+            <li>Adapta la plantilla antes de copiarla en tu IA favorita</li>
+          </ol>
+          <p><strong>Origen del proyecto</strong></p>
+          <p>
+            Este proyecto ha sido creado originalmente por <a href="https://links.rauljimenez.info" target="_blank" rel="noopener noreferrer"></a>Raúl Jiménez Ortega</a>, motivado por la colaboración con el <a href="https://linktr.ee/podcastiayeducacion">Podcast IA y educación</a> y el <a href="https://www.ampanovaschoolalmeria.org/">AMPA de Novaschool Almería</a>.
+          </p>
+          <p>Ahora se buscan personas que quieran colaborar para mejorarlo y ampliarlo.</p>
+          <p>Si te interesa o conoces a alguna personas que pueda estar interesada, no dudes en <a href="https://links.rauljimenez.info">ponerte en contacto</a>.</p>
+          
+        </div>
+      </div>
+    </div>
 
     <script src="script.js" type="module"></script>
   </body>

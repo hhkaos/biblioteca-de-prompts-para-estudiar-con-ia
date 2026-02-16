@@ -45,10 +45,23 @@ Cada fichero Markdown sigue este patrón:
 - `## Prompt plantilla` (bloque ` ```text `)
 - `## Ajustes rápidos`
 
+En `content/examples/index.json`, cada ejemplo puede incluir además:
+- `status: "under-construction"` para mostrar la tarjeta en gris con el chip `En construcción` y sin abrir detalle.
+
 ## Añadir un ejemplo nuevo
 1. Crea el archivo en `content/examples/nuevo-ejemplo.md` con el formato estándar.
 2. Regístralo en `content/examples/index.json` con `id`, `title` y `file`.
 3. Añade su `id` en una o varias fases dentro de `content/phases.json`.
+
+Si todavía no está terminado, puedes registrarlo sin `file` y con:
+```json
+{
+  "id": "nuevo-ejemplo",
+  "title": "Nuevo ejemplo",
+  "summary": "Descripción breve",
+  "status": "under-construction"
+}
+```
 
 ## Reutilizar un ejemplo en varias fases
 `content/phases.json` permite repetir el mismo `id` en distintas fases.
