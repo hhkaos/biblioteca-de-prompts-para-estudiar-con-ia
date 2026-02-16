@@ -35,7 +35,6 @@ const DEFAULT_DESCRIPTION =
   "Prompts para estudiar con IA por fases del aprendizaje para alumnado y familias.";
 const UNDER_CONSTRUCTION_LABEL = "En construcción";
 const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
-const INSTALL_HELLO_SEEN_KEY = "prompts-estudio.install-hello-seen";
 const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
@@ -433,6 +432,23 @@ function isStandaloneMode() {
   );
 }
 
+function getManualInstallHint() {
+  const userAgent = window.navigator.userAgent || "";
+  const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+  const isAndroid = /Android/i.test(userAgent);
+  const isSafari = /Safari/i.test(userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome|Chromium/i.test(userAgent);
+
+  if (isIOS && isSafari) {
+    return "En Safari, pulsa Compartir y luego \"Añadir a pantalla de inicio\" para instalarla manualmente.";
+  }
+
+  if (isAndroid) {
+    return "En el menú del navegador busca \"Instalar app\" o \"Añadir a pantalla de inicio\" para instalarla manualmente.";
+  }
+
+  return "Si tu navegador no muestra el botón, prueba desde su menú (Instalar app / Añadir a pantalla de inicio) o abre esta web en Chrome o Safari.";
+}
+
 function setInstallFeedback(message, { isError = false } = {}) {
   if (!installFeedback) {
     return;
@@ -456,8 +472,7 @@ function shouldShowInstallHelloBar() {
     return false;
   }
   const dismissed = getStoredBoolean(INSTALL_HELLO_DISMISSED_KEY);
-  const seen = getStoredBoolean(INSTALL_HELLO_SEEN_KEY);
-  return !dismissed && !seen;
+  return !dismissed;
 }
 
 function hideInstallHelloBar() {
@@ -477,6 +492,7 @@ function updateInstallUi() {
       installFromBarButton.textContent = "App instalada";
     }
     if (installFromModalButton) {
+      installFromModalButton.classList.add("hidden");
       installFromModalButton.disabled = true;
       installFromModalButton.textContent = "App instalada";
     }
@@ -491,15 +507,23 @@ function updateInstallUi() {
     installFromBarButton.textContent = canPromptInstall ? "Instalar app" : "Instalación no disponible aún";
   }
   if (installFromModalButton) {
-    installFromModalButton.disabled = !canPromptInstall;
-    installFromModalButton.textContent = canPromptInstall
-      ? "Instalar Prompts Estudio"
-      : "Instalación no disponible aún";
+    if (canPromptInstall) {
+      installFromModalButton.classList.remove("hidden");
+      installFromModalButton.disabled = false;
+      installFromModalButton.textContent = "Instalar Prompts Estudio";
+    } else {
+      installFromModalButton.classList.add("hidden");
+      installFromModalButton.disabled = true;
+    }
   }
   if (installHelpText) {
     installHelpText.textContent = canPromptInstall
       ? "Puedes instalar la app en cualquier momento desde este botón."
-      : "Si cerraste el aviso inicial, podrás instalarla después desde aquí cuando el navegador active la opción.";
+      : getManualInstallHint();
+  }
+
+  if (!canPromptInstall) {
+    hideInstallHelloBar();
   }
 }
 
@@ -535,18 +559,16 @@ async function installApp(source = "modal") {
 }
 
 function setupInstallExperience() {
-  if (shouldShowInstallHelloBar()) {
-    installHelloBar.classList.remove("hidden");
-    setStoredBoolean(INSTALL_HELLO_SEEN_KEY, true);
-  } else {
-    hideInstallHelloBar();
-  }
+  hideInstallHelloBar();
   updateInstallUi();
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     setStoredBoolean(INSTALL_COMPLETED_KEY, false);
     deferredInstallPrompt = event;
+    if (shouldShowInstallHelloBar()) {
+      installHelloBar.classList.remove("hidden");
+    }
     updateInstallUi();
   });
 
