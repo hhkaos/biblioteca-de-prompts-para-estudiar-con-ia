@@ -9,9 +9,9 @@
         "curiosidad-antes-de-aprender",
         "metacognicion-inicial",
         "dar-contexto",
-        "plan-aprendizaje",
-        "fuentes-confiables",
         "resumeme-esto",
+        "fuentes-confiables",
+        "plan-aprendizaje",
         "guia-interactiva",
         "glosario-terminos"
       ]
@@ -22,10 +22,10 @@
       "icon": "🧭",
       "description": "Estructurar, adaptar y transformar recursos para que estudiar sea más claro y manejable.",
       "examples": [
-        "glosario-terminos",
         "tecnicas-estudio",
-        "adaptar-contenido",
         "cambiar-formato",
+        "adaptar-contenido",
+        "glosario-terminos",
         "diagramas-mapas",
         "podcast-estudio"
       ]
@@ -36,16 +36,16 @@
       "icon": "💡",
       "description": "Entender el significado, conceptos, hechos o elementos clave. Integrando la información nueva con los conocimientos previos y darle un sentido o explicación personal, ayudando a internalizar las ideas, conocimientos o valores.",
       "examples": [
-        "tecnicas-estudio",
+        "explicaciones-alternativas",
+        "analogias-metaforas",
+        "resolver-dudas",
+        "conceptos-principales-secundarios",
         "diagramas-mapas",
         "resumeme-esto",
         "traducir-textos",
-        "conceptos-principales-secundarios",
         "resolver-ejercicios",
-        "explicaciones-alternativas",
-        "analogias-metaforas",
         "ejemplos-practicos",
-        "resolver-dudas"
+        "tecnicas-estudio"
       ]
     },
     {
@@ -54,10 +54,10 @@
       "icon": "🧠",
       "description": "Ayudar a retener y afianzar contenidos de manera más atractiva y efectiva con técnicas y práctica activa.",
       "examples": [
+        "ejemplos-practicos",
+        "podcast-estudio",
         "glosario-terminos",
         "tecnicas-estudio",
-        "podcast-estudio",
-        "ejemplos-practicos",
         "crear-canciones-memorizar",
         "generar-tarjetas-estudio",
         "crear-reglas-mnemotecnicas",
@@ -72,17 +72,22 @@
       "description": "Cuestionar, argumentar y revisar ideas con pensamiento crítico.",
       "examples": [
         "metacognicion-inicial",
-        "fuentes-confiables"
+        "llevar-la-contraria",
+        "preguntas-socraticas",
+        "analisis-multidisciplinar",
+        "provocador-de-dudas"
       ]
     },
     {
       "id": "evaluar",
       "name": "Evaluar",
       "icon": "✅",
-      "description": "Comprobar avances y detectar lagunas para mejorar el aprendizaje.",
+      "description": "Comprobar avances y si se han adquirido las competencias necesarias o qué lagunas hay. Por ejemplo, ver si se sabe aplicar (o explicar) lo que ha aprendido en situaciones concretas o problemas reales. O si es capaz de establecer conexiones entre ideas, conceptos o experiencias. O de generar nuevas ideas, planteamientos o proyectos a partir de los estudiado. O transformar las que conoce ideas, planteamientos, o proyectos que ya conoce.",
       "examples": [
-        "guia-interactiva",
-        "tecnicas-estudio"
+        "analizar-argumentacion-y-feedback",
+        "crear-cuestionarios-autoevaluacion",
+        "crear-rubricas-autoevaluacion",
+        "provocador-de-dudas"
       ]
     },
     {
@@ -91,8 +96,10 @@
       "icon": "🚀",
       "description": "Ampliar el tema, abrir nuevas preguntas y conectar con áreas relacionadas.",
       "examples": [
+        "plan-aprendizaje",
         "fuentes-confiables",
-        "plan-aprendizaje"
+        "encontrar-temas-relacionados",
+        "buscar-ideas-nuevos-proyectos"
       ]
     }
   ]

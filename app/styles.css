@@ -160,6 +160,7 @@ h1 {
   margin: 0;
   /* max-width: 760px; */
   color: var(--muted);
+  margin-bottom: 1rem;
 }
 
 .gallery-description {
@@ -287,7 +288,9 @@ h1 {
   width: 132px;
   flex: 0 0 132px;
   aspect-ratio: 1408 / 768;
+  display: block;
   object-fit: cover;
+  object-position: center center;
   border-radius: 10px;
   border: 1px solid var(--border);
 }
@@ -577,9 +580,10 @@ button#copy-button {
 
 .card-media {
   position: relative;
-  aspect-ratio: 1408 / 768;
-  min-height: 120px;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
   height: auto;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -588,8 +592,15 @@ button#copy-button {
   color: #4e4e4e;
   background: linear-gradient(135deg, #f0f0f0 0%, #dedede 100%);
   border-bottom: 1px solid var(--border);
+  background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: center center;
+}
+
+/* Some generated images include internal empty bands; this zooms the image layer only. */
+.card-media-tight-image {
+  background-size: cover, 100% auto;
+  background-position: center center, center center;
 }
 
 .card-body {
@@ -643,6 +654,13 @@ button#copy-button {
   padding: 20px;
 }
 
+.gallery-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 #gallery-title {
   margin: 0;
   font-size: 1.1rem;
@@ -650,13 +668,37 @@ button#copy-button {
 }
 
 .examples-count {
-  margin: 4px 0 12px;
+  margin: 0;
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px 9px;
+}
+
+.gallery-description {
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .gallery-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .examples-count {
+    font-size: 0.74rem;
+    padding: 4px 8px;
+  }
 }
 
 .cards-footer {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .modal {
@@ -738,7 +780,7 @@ button#copy-button {
 
 @media (max-width: 980px) {
   .cards-footer {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -768,7 +810,7 @@ button#copy-button {
   }
 
   .cards-footer {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .example-view-head {
@@ -798,6 +840,12 @@ button#copy-button {
     position: static;
     min-width: 0;
     margin-top: 8px;
+  }
+}
+
+@media (max-width: 460px) {
+  .cards-footer {
+    grid-template-columns: 1fr;
   }
 }
 

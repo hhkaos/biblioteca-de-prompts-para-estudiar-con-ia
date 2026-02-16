@@ -31,9 +31,9 @@ const UNDER_CONSTRUCTION_LABEL = "En construcción";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
   title: "¿Echas en falta alguna?",
-  summary: "Buscamos personas que colaboren para ampliar y mejorar esta biblioteca.",
+  summary: "¡Comparte tu experiencia! Buscamos personas que colaboren para ampliar y mejorar esta biblioteca.",
   chip: "Colabora",
-  image: "content/examples/images/colabora-echas-alguna-en-falta.webp"
+  image: "content/examples/images/colabora-echas-alguna-en-falta-squared.webp"
 };
 const VALID_TABS = new Set(["summary", "prompt"]);
 const SOCIAL_NETWORK_DEFINITIONS = [
@@ -629,7 +629,7 @@ function renderSpecialCollaborationCard(target) {
   card.dataset.exampleId = SPECIAL_COLLAB_CARD.id;
   const mediaStyle = `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.08)), url('../${SPECIAL_COLLAB_CARD.image}'); color: #ffffff;`;
   card.innerHTML = `
-    <div class="card-media" style="${mediaStyle}">
+    <div class="card-media card-media-tight-image" style="${mediaStyle}">
       <span class="card-chip card-chip-overlay">${escapeHtml(SPECIAL_COLLAB_CARD.chip)}</span>
     </div>
     <div class="card-body">
@@ -650,7 +650,7 @@ function renderCards(phase) {
   exampleCardsFooter.innerHTML = "";
   if (examplesCount) {
     const label = examples.length === 1 ? "ejemplo" : "ejemplos";
-    examplesCount.textContent = `${examples.length} ${label} mostrados`;
+    examplesCount.textContent = `🔍 ${examples.length} ${label} mostrados`;
   }
 
   for (const example of examples) {
@@ -669,7 +669,7 @@ function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, url
   if (galleryDescription) {
     galleryDescription.textContent = currentPhase
       ? currentPhase.description
-      : "Mostrando todos los ejemplos, sin filtro por fase.";
+      : "Mostrando todos los ejemplos (para filtrar por fase del estudio haz clic en una de las fases que aparecen arriba)";
   }
   renderCards(currentPhase);
   setSelectedPhaseRadio(currentPhase ? currentPhase.id : "");

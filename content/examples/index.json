@@ -134,6 +134,13 @@
       "file": "content/examples/ejemplos-practicos.md"
     },
     {
+      "id": "resolver-dudas",
+      "title": "Encontrar respuestas a dudas",
+      "summary": "Para resolver dudas concretas con explicaciones claras, contexto y ejemplos.",
+      "image": "content/examples/images/resolver-dudas.webp",
+      "file": "content/examples/resolver-dudas.md"
+    },
+    {
       "id": "crear-canciones-memorizar",
       "title": "Crear canciones para memorizar",
       "summary": "Crear canciones que te ayuden a memorizar datos.",
@@ -169,11 +176,68 @@
       "status": "under-construction"
     },
     {
-      "id": "resolver-dudas",
-      "title": "Encontrar respuestas a dudas",
-      "summary": "Para resolver dudas concretas con explicaciones claras, contexto y ejemplos.",
-      "image": "content/examples/images/resolver-dudas.webp",
-      "file": "content/examples/resolver-dudas.md"
+      "id": "llevar-la-contraria",
+      "title": "Llevar la contraria",
+      "summary": "Generar contrargumentos o puntos de vista alternativos para entrenar la refutación y la autocrítica.",
+      "image": "content/examples/images/llevar-la-contraria.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "preguntas-socraticas",
+      "title": "Generar preguntas socráticas",
+      "summary": "Proponer preguntas abiertas que desafíen supuestos, pidan definiciones y fomenten el debate con un mentor socrático.",
+      "image": "content/examples/images/preguntas-socraticas.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "analisis-multidisciplinar",
+      "title": "Análisis de casos con perspectiva multi-disciplinar",
+      "summary": "Cuestionar un caso práctico desde ciencia, historia, ética y derecho para detectar contradicciones o dilemas.",
+      "image": "content/examples/images/analisis-multidisciplinar.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "provocador-de-dudas",
+      "title": "Provocador de dudas",
+      "summary": "Combinar respuestas sólidas con otras deliberadamente cuestionables para entrenar la detección de errores y buenas preguntas.",
+      "image": "content/examples/images/provocador-de-dudas.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "analizar-argumentacion-y-feedback",
+      "title": "Analizar argumentación y dar feedback",
+      "summary": "Analizar, revisar y detectar errores para sugerir mejoras: buscar falacias, incoherencias y lagunas en la argumentación.",
+      "image": "content/examples/images/analizar-argumentacion-feedback.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "crear-cuestionarios-autoevaluacion",
+      "title": "Crear ejercicios de autoevaluación",
+      "summary": "Crear ejercicios o cuestionarios de autoevaluación (estáticos o interactivos)",
+      "image": "content/examples/images/crear-cuestionarios-autoevaluacion.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "crear-rubricas-autoevaluacion",
+      "title": "Crear rúbricas de autoevaluación",
+      "summary": "Diseñar rúbricas claras para autoevaluarse por criterios, niveles de logro y evidencias de mejora.",
+      "image": "content/examples/images/crear-rubricas-autoevaluacion.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "encontrar-temas-relacionados",
+      "title": "Encontrar temas relacionados",
+      "summary": "Encontrar temas relacionados y complementarios con los intereses del estudiante para descubrir otras cosas que también podría querer aprender.",
+      "image": "content/examples/images/encontrar-temas-relacionados.webp",
+      "status": "under-construction"
+    },
+    {
+      "id": "buscar-ideas-nuevos-proyectos",
+      "title": "Buscar ideas para nuevos proyectos",
+      "summary": "Encontrar ideas de proyectos que motiven al estudiante a aprender haciendo y conectar lo aprendido con retos concretos.",
+      "image": "content/examples/images/buscar-ideas-nuevos-proyectos.webp",
+      "status": "under-construction"
     }
+    
   ]
 }
