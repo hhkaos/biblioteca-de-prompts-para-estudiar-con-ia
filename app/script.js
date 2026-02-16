@@ -31,6 +31,7 @@ const installHelpText = document.getElementById("install-help-text");
 const installFeedback = document.getElementById("install-feedback");
 const searchInput = document.getElementById("search-input");
 const searchClear = document.getElementById("search-clear");
+const searchPhaseNotice = document.getElementById("search-phase-notice");
 
 const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
@@ -961,10 +962,53 @@ function renderNoResults(container, query) {
   container.appendChild(wrapper);
 }
 
+function updateSearchPhaseNotice(phase, visibleMatchesCount) {
+  if (!searchPhaseNotice) {
+    return;
+  }
+
+  if (!phase || !currentSearchQuery) {
+    searchPhaseNotice.classList.add("hidden");
+    searchPhaseNotice.innerHTML = "";
+    return;
+  }
+
+  const allMatchesCount = filterExamplesBySearch(allExamples, currentSearchQuery).length;
+  const hiddenMatchesCount = Math.max(0, allMatchesCount - visibleMatchesCount);
+
+  if (hiddenMatchesCount === 0) {
+    searchPhaseNotice.classList.add("hidden");
+    searchPhaseNotice.innerHTML = "";
+    return;
+  }
+
+  const noun = hiddenMatchesCount === 1 ? "coincidencia" : "coincidencias";
+  searchPhaseNotice.innerHTML = `
+    <p>
+      Hay <strong>${hiddenMatchesCount}</strong> ${noun} más fuera de la fase
+      "<strong>${escapeHtml(phase.name)}</strong>".
+    </p>
+    <button type="button" class="search-phase-notice-button" data-action="clear-phase-filter">
+      <i class="fa-solid fa-filter-circle-xmark icon-inline" aria-hidden="true"></i>
+      Ver todas las fases
+    </button>
+  `;
+  searchPhaseNotice.classList.remove("hidden");
+
+  const clearButton = searchPhaseNotice.querySelector('[data-action="clear-phase-filter"]');
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      setCurrentPhase(null, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
+      searchInput.focus();
+    });
+  }
+}
+
 function renderCards(phase) {
   const examples = phase ? getPhaseExamples(phase) : allExamples;
   const filtered = filterExamplesBySearch(examples, currentSearchQuery);
   exampleCardsFooter.innerHTML = "";
+  updateSearchPhaseNotice(phase, filtered.length);
 
   if (examplesCount) {
     const label = filtered.length === 1 ? "ejemplo" : "ejemplos";
