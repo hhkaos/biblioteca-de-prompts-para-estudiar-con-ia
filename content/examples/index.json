@@ -90,6 +90,55 @@
       "summary": "Para repasar escuchando con una narrativa clara y estructurada.",
       "image": "content/examples/images/podcast-estudio.webp",
       "file": "content/examples/podcast-estudio.md"
+    },
+    {
+      "id": "traducir-textos",
+      "title": "Traducir textos para estudiar",
+      "summary": "Para traducir entre idiomas o simplificar lenguaje técnico sin perder el significado.",
+      "image": "content/examples/images/traducir-textos.webp",
+      "file": "content/examples/traducir-textos.md"
+    },
+    {
+      "id": "conceptos-principales-secundarios",
+      "title": "Identificar ideas principales y secundarias",
+      "summary": "Para distinguir ideas clave de complementarias y priorizar qué estudiar primero.",
+      "image": "content/examples/images/conceptos-principales-secundarios.webp",
+      "file": "content/examples/conceptos-principales-secundarios.md"
+    },
+    {
+      "id": "resolver-ejercicios",
+      "title": "Resolver y explicar ejercicios",
+      "summary": "Para entender el proceso de resolución paso a paso o mediante guía socrática.",
+      "image": "content/examples/images/resolver-ejercicios.webp",
+      "file": "content/examples/resolver-ejercicios.md"
+    },
+    {
+      "id": "explicaciones-alternativas",
+      "title": "Crear explicaciones alternativas",
+      "summary": "Para obtener varias formas de entender un mismo concepto cuando la explicación habitual no funciona.",
+      "image": "content/examples/images/explicaciones-alternativas.webp",
+      "file": "content/examples/explicaciones-alternativas.md"
+    },
+    {
+      "id": "analogias-metaforas",
+      "title": "Generar analogías o metáforas",
+      "summary": "Para conectar conceptos complejos con ideas cotidianas y facilitar la comprensión.",
+      "image": "content/examples/images/analogias-metaforas.webp",
+      "file": "content/examples/analogias-metaforas.md"
+    },
+    {
+      "id": "ejemplos-practicos",
+      "title": "Generar ejemplos prácticos",
+      "summary": "Para ver la aplicación real de conceptos teóricos con casos de uso concretos.",
+      "image": "content/examples/images/ejemplos-practicos.webp",
+      "file": "content/examples/ejemplos-practicos.md"
+    },
+    {
+      "id": "resolver-dudas",
+      "title": "Encontrar respuestas a dudas",
+      "summary": "Para resolver dudas concretas con explicaciones claras, contexto y ejemplos.",
+      "image": "content/examples/images/resolver-dudas.webp",
+      "file": "content/examples/resolver-dudas.md"
     }
   ]
 }
