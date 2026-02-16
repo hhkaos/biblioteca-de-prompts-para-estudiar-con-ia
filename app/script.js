@@ -99,6 +99,12 @@ let currentSearchQuery = "";
 let waitingServiceWorker = null;
 let updateReloadInProgress = false;
 let shouldReloadAfterControllerChange = false;
+let updateControllerChangeFallbackTimeout = null;
+
+const UPDATE_BUTTON_DEFAULT_HTML =
+  '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
+const UPDATE_BUTTON_APPLYING_HTML =
+  '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Aplicando...';
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -582,9 +588,31 @@ function reloadWithCacheBust() {
   window.location.replace(url.toString());
 }
 
+function setUpdateApplyingUi() {
+  if (updateNowButton) {
+    updateNowButton.setAttribute("disabled", "true");
+    updateNowButton.setAttribute("aria-busy", "true");
+    updateNowButton.innerHTML = UPDATE_BUTTON_APPLYING_HTML;
+  }
+  if (updateDismissButton) {
+    updateDismissButton.setAttribute("disabled", "true");
+  }
+}
+
+function resetUpdateUi() {
+  if (updateNowButton) {
+    updateNowButton.removeAttribute("disabled");
+    updateNowButton.removeAttribute("aria-busy");
+    updateNowButton.innerHTML = UPDATE_BUTTON_DEFAULT_HTML;
+  }
+  if (updateDismissButton) {
+    updateDismissButton.removeAttribute("disabled");
+  }
+}
+
 async function forceRefreshToLatestVersion() {
   try {
-    updateNowButton?.setAttribute("disabled", "true");
+    setUpdateApplyingUi();
     await clearBrowserCaches();
 
     if ("serviceWorker" in navigator) {
@@ -594,6 +622,26 @@ async function forceRefreshToLatestVersion() {
   } finally {
     reloadWithCacheBust();
   }
+}
+
+function beginUpdateFlow() {
+  if (updateReloadInProgress) {
+    return;
+  }
+
+  updateReloadInProgress = true;
+  setUpdateApplyingUi();
+
+  if (waitingServiceWorker) {
+    shouldReloadAfterControllerChange = true;
+    waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
+    updateControllerChangeFallbackTimeout = window.setTimeout(() => {
+      forceRefreshToLatestVersion();
+    }, 2500);
+    return;
+  }
+
+  forceRefreshToLatestVersion();
 }
 
 function updateInstallUi() {
@@ -744,11 +792,11 @@ async function registerServiceWorker() {
       if (!shouldReloadAfterControllerChange) {
         return;
       }
-      if (updateReloadInProgress) {
-        return;
+      if (updateControllerChangeFallbackTimeout) {
+        window.clearTimeout(updateControllerChangeFallbackTimeout);
+        updateControllerChangeFallbackTimeout = null;
       }
-      updateReloadInProgress = true;
-      forceRefreshToLatestVersion();
+      reloadWithCacheBust();
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -769,13 +817,9 @@ function setupUpdateExperience() {
   hideUpdateHelloBar();
 
   if (updateNowButton) {
+    resetUpdateUi();
     updateNowButton.addEventListener("click", () => {
-      if (waitingServiceWorker) {
-        shouldReloadAfterControllerChange = true;
-        waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
-        return;
-      }
-      forceRefreshToLatestVersion();
+      beginUpdateFlow();
     });
   }
 
