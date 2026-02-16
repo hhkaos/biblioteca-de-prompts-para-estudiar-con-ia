@@ -20,14 +20,23 @@ const collabMailto = document.getElementById("collab-mailto");
 const collabSocialLinks = document.getElementById("collab-social-links");
 const collabTelegram = document.getElementById("collab-telegram");
 const panelToggleButton = document.getElementById("panel-toggle-button");
-const aboutButton = document.getElementById("about-button");
+const aboutButtons = document.querySelectorAll("#about-button, #about-button-mobile");
 const aboutModal = document.getElementById("about-modal");
 const aboutCloseButton = document.getElementById("about-close-button");
+const installHelloBar = document.getElementById("install-hello-bar");
+const installFromBarButton = document.getElementById("install-from-bar-button");
+const installHelloDismissButton = document.getElementById("install-hello-dismiss-button");
+const installFromModalButton = document.getElementById("install-from-modal-button");
+const installHelpText = document.getElementById("install-help-text");
+const installFeedback = document.getElementById("install-feedback");
 
-const APP_TITLE = "Biblioteca de Prompts Educativos";
+const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
-  "Biblioteca interactiva de prompts educativos por fases del aprendizaje para alumnado y familias.";
+  "Prompts para estudiar con IA por fases del aprendizaje para alumnado y familias.";
 const UNDER_CONSTRUCTION_LABEL = "En construcción";
+const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
+const INSTALL_HELLO_SEEN_KEY = "prompts-estudio.install-hello-seen";
+const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
   title: "¿Echas en falta alguna?",
@@ -77,6 +86,7 @@ let currentExampleId = "";
 let promptTextareaAutoResizeEnabled = true;
 let promptTextareaPointerDownHeight = null;
 let modalLastFocus = null;
+let deferredInstallPrompt = null;
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -400,6 +410,187 @@ function closeAboutModal() {
   modalLastFocus = null;
 }
 
+function getStoredBoolean(key) {
+  try {
+    return window.localStorage.getItem(key) === "true";
+  } catch (_error) {
+    return false;
+  }
+}
+
+function setStoredBoolean(key, value) {
+  try {
+    window.localStorage.setItem(key, value ? "true" : "false");
+  } catch (_error) {
+    // Ignore storage failures (private mode / blocked storage).
+  }
+}
+
+function isStandaloneMode() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function setInstallFeedback(message, { isError = false } = {}) {
+  if (!installFeedback) {
+    return;
+  }
+  installFeedback.textContent = message;
+  installFeedback.classList.remove("hidden");
+  installFeedback.classList.toggle("is-error", isError);
+}
+
+function hideInstallFeedback() {
+  if (!installFeedback) {
+    return;
+  }
+  installFeedback.textContent = "";
+  installFeedback.classList.add("hidden");
+  installFeedback.classList.remove("is-error");
+}
+
+function shouldShowInstallHelloBar() {
+  if (!installHelloBar || isStandaloneMode()) {
+    return false;
+  }
+  const dismissed = getStoredBoolean(INSTALL_HELLO_DISMISSED_KEY);
+  const seen = getStoredBoolean(INSTALL_HELLO_SEEN_KEY);
+  return !dismissed && !seen;
+}
+
+function hideInstallHelloBar() {
+  if (installHelloBar) {
+    installHelloBar.classList.add("hidden");
+  }
+}
+
+function updateInstallUi() {
+  const isInstalled = isStandaloneMode() || getStoredBoolean(INSTALL_COMPLETED_KEY);
+  const canPromptInstall = Boolean(deferredInstallPrompt);
+
+  if (isInstalled) {
+    hideInstallHelloBar();
+    if (installFromBarButton) {
+      installFromBarButton.disabled = true;
+      installFromBarButton.textContent = "App instalada";
+    }
+    if (installFromModalButton) {
+      installFromModalButton.disabled = true;
+      installFromModalButton.textContent = "App instalada";
+    }
+    if (installHelpText) {
+      installHelpText.textContent = "La aplicación ya está instalada en este dispositivo.";
+    }
+    return;
+  }
+
+  if (installFromBarButton) {
+    installFromBarButton.disabled = !canPromptInstall;
+    installFromBarButton.textContent = canPromptInstall ? "Instalar app" : "Instalación no disponible aún";
+  }
+  if (installFromModalButton) {
+    installFromModalButton.disabled = !canPromptInstall;
+    installFromModalButton.textContent = canPromptInstall
+      ? "Instalar Prompts Estudio"
+      : "Instalación no disponible aún";
+  }
+  if (installHelpText) {
+    installHelpText.textContent = canPromptInstall
+      ? "Puedes instalar la app en cualquier momento desde este botón."
+      : "Si cerraste el aviso inicial, podrás instalarla después desde aquí cuando el navegador active la opción.";
+  }
+}
+
+async function installApp(source = "modal") {
+  hideInstallFeedback();
+
+  if (!deferredInstallPrompt) {
+    setInstallFeedback(
+      "La instalación aún no está disponible en este navegador. Inténtalo más tarde desde este botón.",
+      { isError: true }
+    );
+    updateInstallUi();
+    return;
+  }
+
+  deferredInstallPrompt.prompt();
+  const choiceResult = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  updateInstallUi();
+
+  if (choiceResult.outcome === "accepted") {
+    setStoredBoolean(INSTALL_HELLO_DISMISSED_KEY, true);
+    hideInstallHelloBar();
+    setInstallFeedback("Instalación iniciada. Si no finaliza, vuelve a intentarlo desde este botón.");
+    return;
+  }
+
+  if (source === "bar") {
+    setInstallFeedback("Instalación cancelada. Puedes retomarla cuando quieras desde Sobre la app.");
+  } else {
+    setInstallFeedback("Instalación cancelada. Puedes volver a intentarlo cuando quieras.");
+  }
+}
+
+function setupInstallExperience() {
+  if (shouldShowInstallHelloBar()) {
+    installHelloBar.classList.remove("hidden");
+    setStoredBoolean(INSTALL_HELLO_SEEN_KEY, true);
+  } else {
+    hideInstallHelloBar();
+  }
+  updateInstallUi();
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    setStoredBoolean(INSTALL_COMPLETED_KEY, false);
+    deferredInstallPrompt = event;
+    updateInstallUi();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    setStoredBoolean(INSTALL_COMPLETED_KEY, true);
+    setStoredBoolean(INSTALL_HELLO_DISMISSED_KEY, true);
+    hideInstallHelloBar();
+    updateInstallUi();
+    setInstallFeedback("Prompts Estudio ya está instalada en este dispositivo.");
+  });
+
+  if (installFromBarButton) {
+    installFromBarButton.addEventListener("click", () => {
+      installApp("bar");
+    });
+  }
+
+  if (installHelloDismissButton) {
+    installHelloDismissButton.addEventListener("click", () => {
+      setStoredBoolean(INSTALL_HELLO_DISMISSED_KEY, true);
+      hideInstallHelloBar();
+      setInstallFeedback("Aviso cerrado. Podrás instalarla más adelante desde Sobre la app.");
+    });
+  }
+
+  if (installFromModalButton) {
+    installFromModalButton.addEventListener("click", () => {
+      installApp("modal");
+    });
+  }
+}
+
+async function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+  try {
+    await navigator.serviceWorker.register("./service-worker.js");
+  } catch (_error) {
+    // App works without service worker.
+  }
+}
+
 function scrollToDetailPanel() {
   requestAnimationFrame(() => {
     panelRight.scrollIntoView({
@@ -468,7 +659,7 @@ function buildExampleUrl(phaseId, exampleId, tabId = "summary") {
 
 function buildCollaborationMessage(example, exampleUrl, mentionText = "") {
   const mentionSuffix = mentionText ? ` (${mentionText})` : "";
-  return `Sugerencia sobre "${example.title}" en la Biblioteca de Prompts: ${exampleUrl}${mentionSuffix}`;
+  return `Sugerencia sobre "${example.title}" en Prompts Estudio: ${exampleUrl}${mentionSuffix}`;
 }
 
 function configureMailtoLink(example, exampleUrl) {
@@ -915,9 +1106,11 @@ if (panelToggleButton) {
   });
 }
 
-if (aboutButton) {
-  aboutButton.addEventListener("click", () => {
-    openAboutModal();
+if (aboutButtons.length) {
+  aboutButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      openAboutModal();
+    });
   });
 }
 
@@ -984,6 +1177,8 @@ window.addEventListener("popstate", () => {
 });
 
 async function init() {
+  setupInstallExperience();
+  registerServiceWorker();
   await loadData();
   renderPhaseRadios();
   await applyUrlState({ urlMode: "replace" });

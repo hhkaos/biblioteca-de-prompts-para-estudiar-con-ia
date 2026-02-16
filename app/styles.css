@@ -25,6 +25,71 @@ body {
   overflow-x: hidden;
 }
 
+.install-hello-bar {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(135deg, rgba(0, 105, 92, 0.98), rgba(0, 77, 67, 0.96));
+  color: #f4fffb;
+}
+
+.install-hello-bar p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.install-hello-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.install-primary-button,
+.install-ghost-button {
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.install-primary-button {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  background: var(--brand-strong);
+}
+
+.install-primary-button:hover,
+.install-primary-button:focus-visible {
+  outline: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.install-primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.install-ghost-button {
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: transparent;
+  color: #f6fffc;
+}
+
+.install-ghost-button:hover,
+.install-ghost-button:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .background-shape {
   position: fixed;
   z-index: -1;
@@ -701,6 +766,29 @@ button#copy-button {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.app-about-footer-mobile {
+  display: none;
+}
+
+.app-about-footer-link {
+  border: 0;
+  background: transparent;
+  color: var(--brand-strong);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  padding: 0;
+  cursor: pointer;
+}
+
+.app-about-footer-link:hover,
+.app-about-footer-link:focus-visible {
+  color: var(--brand);
+  outline: none;
+}
+
 .modal {
   position: fixed;
   inset: 0;
@@ -778,6 +866,20 @@ button#copy-button {
   color: var(--brand-strong);
 }
 
+.modal-body .install-primary-button {
+  margin-top: 4px;
+}
+
+.install-feedback {
+  margin: 10px 0 0;
+  color: var(--brand-strong);
+  font-weight: 700;
+}
+
+.install-feedback.is-error {
+  color: #8f2f2f;
+}
+
 @media (max-width: 980px) {
   .cards-footer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -785,16 +887,31 @@ button#copy-button {
 }
 
 @media (max-width: 640px) {
+  .install-hello-bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .install-hello-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .install-primary-button,
+  .install-ghost-button {
+    width: 100%;
+  }
+
   .hero-actions {
-    position: static;
-    margin-bottom: 10px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
+    display: none;
   }
 
   .panel-toggle-button {
-    top: -12px;
-    right: -8px;
+    top: 0px;
+    right: 0px;
   }
 
   .phase-radios {
@@ -840,6 +957,36 @@ button#copy-button {
     position: static;
     min-width: 0;
     margin-top: 8px;
+  }
+
+  .app-about-footer-mobile {
+    display: block;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .app-about-footer-mobile .app-about-footer-link {
+    width: 100%;
+    text-align: center;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hero-actions {
+    display: none;
+  }
+
+  .app-about-footer-mobile {
+    display: block;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .app-about-footer-mobile .app-about-footer-link {
+    width: 100%;
+    text-align: center;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
   }
 }
 
