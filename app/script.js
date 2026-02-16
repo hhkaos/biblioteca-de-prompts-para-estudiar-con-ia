@@ -34,6 +34,8 @@ const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
   "Prompts para estudiar con IA por fases del aprendizaje para alumnado y familias.";
 const UNDER_CONSTRUCTION_LABEL = "En construcción";
+const FILTER_TOOLTIP_MESSAGE =
+  "Para filtrar por fase del estudio, pulsa una de las fases que aparecen arriba.";
 const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
 const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const SPECIAL_COLLAB_CARD = {
@@ -872,6 +874,53 @@ function renderCards(phase) {
   renderSpecialCollaborationCard(exampleCardsFooter);
 }
 
+function closeFilterTooltip() {
+  if (!galleryDescription) {
+    return;
+  }
+
+  const wrapper = galleryDescription.querySelector(".phase-filter-tooltip-wrap.is-open");
+  if (!wrapper) {
+    return;
+  }
+
+  wrapper.classList.remove("is-open");
+  const trigger = wrapper.querySelector("[data-filter-tooltip-trigger]");
+  if (trigger instanceof HTMLElement) {
+    trigger.setAttribute("aria-expanded", "false");
+  }
+}
+
+function setGalleryDescription(phase) {
+  if (!galleryDescription) {
+    return;
+  }
+
+  if (phase) {
+    galleryDescription.textContent = phase.description;
+    return;
+  }
+
+  galleryDescription.innerHTML = `
+    <span class="phase-filter-hint">Mostrando todos los ejemplos</span>
+    <span class="phase-filter-tooltip-wrap">
+      <button
+        type="button"
+        class="phase-filter-tooltip-trigger"
+        data-filter-tooltip-trigger
+        aria-label="Cómo filtrar por fase"
+        aria-expanded="false"
+        aria-describedby="phase-filter-tooltip"
+      >
+        <i class="fa-solid fa-circle-info icon-inline" aria-hidden="true"></i>
+      </button>
+      <span id="phase-filter-tooltip" class="phase-filter-tooltip" role="tooltip">
+        ${escapeHtml(FILTER_TOOLTIP_MESSAGE)}
+      </span>
+    </span>
+  `;
+}
+
 function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, urlMode = "push" } = {}) {
   currentPhase = phase || null;
   if (galleryTitle) {
@@ -879,11 +928,7 @@ function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, url
       ? `Galería de ejemplos para ${currentPhase.name.toLowerCase()}`
       : "Galería de ejemplos";
   }
-  if (galleryDescription) {
-    galleryDescription.textContent = currentPhase
-      ? currentPhase.description
-      : "Mostrando todos los ejemplos (para filtrar por fase del estudio haz clic en una de las fases que aparecen arriba)";
-  }
+  setGalleryDescription(currentPhase);
   renderCards(currentPhase);
   setSelectedPhaseRadio(currentPhase ? currentPhase.id : "");
 
@@ -1150,8 +1195,44 @@ if (aboutModal) {
   });
 }
 
+if (galleryDescription) {
+  galleryDescription.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const trigger = event.target.closest("[data-filter-tooltip-trigger]");
+    if (!(trigger instanceof HTMLElement)) {
+      return;
+    }
+
+    event.preventDefault();
+    const wrapper = trigger.closest(".phase-filter-tooltip-wrap");
+    if (!(wrapper instanceof HTMLElement)) {
+      return;
+    }
+
+    const shouldOpen = !wrapper.classList.contains("is-open");
+    closeFilterTooltip();
+    if (!shouldOpen) {
+      return;
+    }
+
+    wrapper.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Node) || galleryDescription.contains(event.target)) {
+      return;
+    }
+    closeFilterTooltip();
+  });
+}
+
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    closeFilterTooltip();
     closeAboutModal();
   }
 });

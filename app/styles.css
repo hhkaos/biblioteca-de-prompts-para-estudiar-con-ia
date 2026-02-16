@@ -145,11 +145,15 @@ body {
   background: rgba(255, 255, 255, 0.92);
   color: var(--brand-strong);
   font: inherit;
-  font-size: 0.86rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   line-height: 1;
-  padding: 8px 12px;
+  padding: 7px 11px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
 }
 
 .hero-action-link:hover,
@@ -285,14 +289,20 @@ h1 {
 .phase-option label {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: #fff;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.92rem;
+  font-weight: 600;
+  font-size: 0.84rem;
+  line-height: 1.2;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.phase-option label:hover {
+  border-color: rgba(0, 105, 92, 0.34);
 }
 
 .phase-option input:checked + label {
@@ -383,22 +393,25 @@ h1 {
 
 .tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
 .tab-button {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 12px;
+  border-radius: 9px;
+  padding: 6px 10px;
   background: #fff;
   font: inherit;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.15;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
 .tab-button.active {
@@ -442,17 +455,28 @@ h1 {
 }
 
 button#copy-button {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid rgba(0, 77, 67, 0.16);
+  border-radius: 9px;
+  padding: 7px 10px;
   font: inherit;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.1;
   color: #fff;
   background: linear-gradient(135deg, var(--brand) 0%, #00897b 100%);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  transition: transform 160ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+button#copy-button:hover,
+button#copy-button:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 105, 92, 0.18);
+  filter: saturate(1.04);
 }
 
 #prompt-textarea {
@@ -756,6 +780,72 @@ button#copy-button {
 
 .gallery-description {
   margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.phase-filter-hint {
+  line-height: 1.35;
+}
+
+.phase-filter-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.phase-filter-tooltip-trigger {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--brand-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.phase-filter-tooltip-trigger:hover,
+.phase-filter-tooltip-trigger:focus-visible {
+  border-color: var(--brand);
+  color: var(--brand);
+  outline: none;
+  box-shadow: 0 6px 14px rgba(0, 105, 92, 0.14);
+}
+
+.phase-filter-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, -4px);
+  min-width: 220px;
+  max-width: 300px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.phase-filter-tooltip-wrap:hover .phase-filter-tooltip,
+.phase-filter-tooltip-wrap:focus-within .phase-filter-tooltip,
+.phase-filter-tooltip-wrap.is-open .phase-filter-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
 }
 
 @media (max-width: 640px) {
@@ -768,6 +858,20 @@ button#copy-button {
   .examples-count {
     font-size: 0.74rem;
     padding: 4px 8px;
+  }
+
+  .phase-filter-tooltip {
+    left: auto;
+    right: 0;
+    transform: translate(0, -4px);
+    min-width: min(260px, calc(100vw - 40px));
+    max-width: min(300px, calc(100vw - 40px));
+  }
+
+  .phase-filter-tooltip-wrap:hover .phase-filter-tooltip,
+  .phase-filter-tooltip-wrap:focus-within .phase-filter-tooltip,
+  .phase-filter-tooltip-wrap.is-open .phase-filter-tooltip {
+    transform: translate(0, 0);
   }
 }
 
@@ -784,12 +888,15 @@ button#copy-button {
   background: transparent;
   color: var(--brand-strong);
   font: inherit;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.86rem;
+  font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 0.18em;
   padding: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .app-about-footer-link:hover,
@@ -932,7 +1039,7 @@ button#copy-button {
   }
 
   .phase-option label {
-    font-size: 0.86rem;
+    font-size: 0.82rem;
   }
 
   .cards-footer {
