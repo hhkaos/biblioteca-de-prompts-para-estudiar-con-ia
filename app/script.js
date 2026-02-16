@@ -570,7 +570,6 @@ function setWaitingServiceWorker(worker) {
     hideUpdateHelloBar();
     return;
   }
-  setStoredBoolean(UPDATE_HELLO_DISMISSED_KEY, false);
   showUpdateHelloBar();
 }
 
@@ -783,6 +782,7 @@ async function registerServiceWorker() {
       }
       newWorker.addEventListener("statechange", () => {
         if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          setStoredBoolean(UPDATE_HELLO_DISMISSED_KEY, false);
           setWaitingServiceWorker(newWorker);
         }
       });
