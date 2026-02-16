@@ -29,6 +29,8 @@ const installHelloDismissButton = document.getElementById("install-hello-dismiss
 const installFromModalButton = document.getElementById("install-from-modal-button");
 const installHelpText = document.getElementById("install-help-text");
 const installFeedback = document.getElementById("install-feedback");
+const searchInput = document.getElementById("search-input");
+const searchClear = document.getElementById("search-clear");
 
 const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
@@ -88,6 +90,7 @@ let promptTextareaAutoResizeEnabled = true;
 let promptTextareaPointerDownHeight = null;
 let modalLastFocus = null;
 let deferredInstallPrompt = null;
+let currentSearchQuery = "";
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -101,6 +104,54 @@ async function loadData() {
   phases = phaseData.phases;
   allExamples = examplesData.examples;
   exampleById = Object.fromEntries(examplesData.examples.map((item) => [item.id, item]));
+}
+
+function normalizeText(text) {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function levenshteinDistance(a, b) {
+  const m = a.length;
+  const n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+function fuzzyMatchScore(query, text) {
+  if (!query) return 0;
+  if (text.includes(query)) return 1;
+
+  const words = text.split(/\s+/);
+  let bestScore = 0;
+
+  for (const word of words) {
+    if (word.includes(query) || query.includes(word)) {
+      bestScore = Math.max(bestScore, 0.9);
+      continue;
+    }
+    const distance = levenshteinDistance(query, word);
+    const maxLen = Math.max(query.length, word.length);
+    const similarity = 1 - distance / maxLen;
+    if (similarity >= 0.55) {
+      bestScore = Math.max(bestScore, similarity);
+    }
+  }
+
+  return bestScore;
 }
 
 function escapeHtml(text) {
@@ -860,16 +911,72 @@ function renderSpecialCollaborationCard(target) {
   target.appendChild(card);
 }
 
-function renderCards(phase) {
-  const examples = phase ? getPhaseExamples(phase) : allExamples;
-  exampleCardsFooter.innerHTML = "";
-  if (examplesCount) {
-    const label = examples.length === 1 ? "ejemplo" : "ejemplos";
-    examplesCount.textContent = `🔍 ${examples.length} ${label} mostrados`;
+function filterExamplesBySearch(examples, query) {
+  if (!query) {
+    return examples;
   }
+  const normalizedQuery = normalizeText(query);
+  const scored = [];
 
   for (const example of examples) {
-    renderCard(example, exampleCardsFooter);
+    const title = normalizeText(example.title || "");
+    const summary = normalizeText(example.summary || "");
+    const titleScore = fuzzyMatchScore(normalizedQuery, title);
+    const summaryScore = fuzzyMatchScore(normalizedQuery, summary);
+    const bestScore = Math.max(titleScore, summaryScore);
+    if (bestScore > 0) {
+      scored.push({ example, score: bestScore });
+    }
+  }
+
+  scored.sort((a, b) => {
+    const aUnder = isExampleUnderConstruction(a.example) ? 1 : 0;
+    const bUnder = isExampleUnderConstruction(b.example) ? 1 : 0;
+    if (aUnder !== bUnder) return aUnder - bUnder;
+    return b.score - a.score;
+  });
+  return scored.map((item) => item.example);
+}
+
+function renderNoResults(container, query) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "search-no-results";
+
+  let html = `<p>No se encontraron ejemplos para "<strong>${escapeHtml(query)}</strong>".</p>`;
+
+  if (currentPhase) {
+    html += `<p>Estás filtrando por la fase "<strong>${escapeHtml(currentPhase.name)}</strong>". Prueba a buscar en todas las fases.</p>`;
+    html += `<button type="button" class="search-no-results-button" data-action="clear-phase"><i class="fa-solid fa-filter-circle-xmark icon-inline" aria-hidden="true"></i> Quitar filtro de fase</button>`;
+  }
+
+  wrapper.innerHTML = html;
+
+  const clearPhaseButton = wrapper.querySelector('[data-action="clear-phase"]');
+  if (clearPhaseButton) {
+    clearPhaseButton.addEventListener("click", () => {
+      setCurrentPhase(null, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
+    });
+  }
+
+  container.appendChild(wrapper);
+}
+
+function renderCards(phase) {
+  const examples = phase ? getPhaseExamples(phase) : allExamples;
+  const filtered = filterExamplesBySearch(examples, currentSearchQuery);
+  exampleCardsFooter.innerHTML = "";
+
+  if (examplesCount) {
+    const label = filtered.length === 1 ? "ejemplo" : "ejemplos";
+    examplesCount.textContent = `🔍 ${filtered.length} ${label} mostrados`;
+  }
+
+  if (filtered.length === 0 && currentSearchQuery) {
+    renderNoResults(exampleCardsFooter, currentSearchQuery);
+  } else {
+    for (const example of filtered) {
+      renderCard(example, exampleCardsFooter);
+    }
   }
   renderSpecialCollaborationCard(exampleCardsFooter);
 }
@@ -1234,7 +1341,29 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeFilterTooltip();
     closeAboutModal();
+    if (document.activeElement === searchInput && currentSearchQuery) {
+      clearSearch();
+      searchInput.blur();
+    }
   }
+});
+
+function clearSearch() {
+  currentSearchQuery = "";
+  searchInput.value = "";
+  searchClear.classList.add("hidden");
+  renderCards(currentPhase);
+}
+
+searchInput.addEventListener("input", () => {
+  currentSearchQuery = searchInput.value.trim();
+  searchClear.classList.toggle("hidden", !currentSearchQuery);
+  renderCards(currentPhase);
+});
+
+searchClear.addEventListener("click", () => {
+  clearSearch();
+  searchInput.focus();
 });
 
 async function applyUrlState({ urlMode = "replace" } = {}) {
