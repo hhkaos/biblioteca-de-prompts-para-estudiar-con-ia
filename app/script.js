@@ -1,6 +1,7 @@
 import { collaborationConfig } from "./collab-config.js";
 
 const phaseRadios = document.getElementById("phase-radios");
+const phaseSelect = document.getElementById("phase-select");
 const phaseDescription = document.getElementById("phase-description");
 const exampleCardsFooter = document.getElementById("example-cards-footer");
 const panelRight = document.getElementById("panel-right");
@@ -441,6 +442,10 @@ function setSelectedPhaseRadio(phaseId) {
   if (selectedRadio) {
     selectedRadio.checked = true;
   }
+
+  if (phaseSelect) {
+    phaseSelect.value = phaseId;
+  }
 }
 
 function getPhaseFallbackImage(phase) {
@@ -533,6 +538,10 @@ function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, url
 
 function renderPhaseRadios() {
   phaseRadios.innerHTML = "";
+  if (phaseSelect) {
+    phaseSelect.innerHTML = "";
+  }
+
   for (const phase of phases) {
     const id = `phase-${phase.id}`;
     const option = document.createElement("div");
@@ -542,6 +551,13 @@ function renderPhaseRadios() {
       <label for="${id}"><span>${escapeHtml(phase.icon || "📘")}</span> ${escapeHtml(phase.name)}</label>
     `;
     phaseRadios.appendChild(option);
+
+    if (phaseSelect) {
+      const selectOption = document.createElement("option");
+      selectOption.value = phase.id;
+      selectOption.textContent = `${phase.icon || "📘"} ${phase.name}`;
+      phaseSelect.appendChild(selectOption);
+    }
   }
 
   phaseRadios.addEventListener("change", (event) => {
@@ -556,6 +572,21 @@ function renderPhaseRadios() {
 
     setCurrentPhase(phase, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
   });
+
+  if (phaseSelect) {
+    phaseSelect.addEventListener("change", (event) => {
+      if (!(event.target instanceof HTMLSelectElement)) {
+        return;
+      }
+
+      const phase = findPhaseById(event.target.value);
+      if (!phase) {
+        return;
+      }
+
+      setCurrentPhase(phase, { resetDetailPanel: true, updateUrl: true, urlMode: "push" });
+    });
+  }
 }
 
 async function loadExample(
