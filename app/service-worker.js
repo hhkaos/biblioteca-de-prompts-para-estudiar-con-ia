@@ -1,4 +1,4 @@
-const CACHE_VERSION = "prompts-estudio-v2";
+const CACHE_VERSION = "prompts-estudio-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -19,7 +19,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -29,6 +28,12 @@ self.addEventListener("activate", (event) => {
     )
   );
   self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
@@ -42,24 +47,29 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200) {
-            return networkResponse;
-          }
-
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const cloned = networkResponse.clone();
-          caches.open(CACHE_VERSION).then((cache) => {
-            cache.put(event.request, cloned);
-          });
-          return networkResponse;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+          event.waitUntil(
+            caches.open(CACHE_VERSION).then((cache) => {
+              cache.put(event.request, cloned);
+            })
+          );
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        if (event.request.mode === "navigate") {
+          return caches.match("./index.html");
+        }
+
+        throw new Error("No network and no cached response available");
+      })
   );
 });

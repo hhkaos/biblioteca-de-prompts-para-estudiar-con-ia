@@ -40,6 +40,21 @@ body {
   color: #f4fffb;
 }
 
+.update-hello-bar {
+  position: sticky;
+  top: 0;
+  z-index: 69;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(225, 122, 0, 0.96), rgba(198, 93, 0, 0.95));
+  color: #fff7ef;
+}
+
 .install-hello-bar p {
   margin: 0;
   font-size: 0.9rem;
@@ -47,7 +62,23 @@ body {
   text-align: center;
 }
 
+.update-hello-bar p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
 .install-hello-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.update-hello-actions {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1148,7 +1179,20 @@ button#copy-button:focus-visible {
     padding: 10px 12px;
   }
 
+  .update-hello-bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
   .install-hello-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .update-hello-actions {
     width: 100%;
     flex-direction: column;
     align-items: stretch;

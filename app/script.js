@@ -29,6 +29,9 @@ const installHelloDismissButton = document.getElementById("install-hello-dismiss
 const installFromModalButton = document.getElementById("install-from-modal-button");
 const installHelpText = document.getElementById("install-help-text");
 const installFeedback = document.getElementById("install-feedback");
+const updateHelloBar = document.getElementById("update-hello-bar");
+const updateNowButton = document.getElementById("update-now-button");
+const updateDismissButton = document.getElementById("update-dismiss-button");
 const searchInput = document.getElementById("search-input");
 const searchClear = document.getElementById("search-clear");
 const searchPhaseNotice = document.getElementById("search-phase-notice");
@@ -41,6 +44,7 @@ const FILTER_TOOLTIP_MESSAGE =
   "Para filtrar por fase del estudio, pulsa una de las fases que aparecen arriba.";
 const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
 const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
+const UPDATE_HELLO_DISMISSED_KEY = "prompts-estudio.update-hello-dismissed";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
   title: "¿Echas en falta alguna?",
@@ -92,6 +96,9 @@ let promptTextareaPointerDownHeight = null;
 let modalLastFocus = null;
 let deferredInstallPrompt = null;
 let currentSearchQuery = "";
+let waitingServiceWorker = null;
+let updateReloadInProgress = false;
+let shouldReloadAfterControllerChange = false;
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -535,6 +542,60 @@ function hideInstallHelloBar() {
   }
 }
 
+function hideUpdateHelloBar() {
+  if (updateHelloBar) {
+    updateHelloBar.classList.add("hidden");
+  }
+}
+
+function showUpdateHelloBar() {
+  if (!updateHelloBar) {
+    return;
+  }
+  if (getStoredBoolean(UPDATE_HELLO_DISMISSED_KEY)) {
+    return;
+  }
+  updateHelloBar.classList.remove("hidden");
+}
+
+function setWaitingServiceWorker(worker) {
+  waitingServiceWorker = worker;
+  if (!worker) {
+    hideUpdateHelloBar();
+    return;
+  }
+  setStoredBoolean(UPDATE_HELLO_DISMISSED_KEY, false);
+  showUpdateHelloBar();
+}
+
+async function clearBrowserCaches() {
+  if (!("caches" in window)) {
+    return;
+  }
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) => caches.delete(key)));
+}
+
+function reloadWithCacheBust() {
+  const url = new URL(window.location.href);
+  url.searchParams.set("updated", Date.now().toString());
+  window.location.replace(url.toString());
+}
+
+async function forceRefreshToLatestVersion() {
+  try {
+    updateNowButton?.setAttribute("disabled", "true");
+    await clearBrowserCaches();
+
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.update()));
+    }
+  } finally {
+    reloadWithCacheBust();
+  }
+}
+
 function updateInstallUi() {
   const isInstalled = isStandaloneMode() || getStoredBoolean(INSTALL_COMPLETED_KEY);
   const canPromptInstall = Boolean(deferredInstallPrompt);
@@ -661,9 +722,68 @@ async function registerServiceWorker() {
     return;
   }
   try {
-    await navigator.serviceWorker.register("./service-worker.js");
+    const registration = await navigator.serviceWorker.register("./service-worker.js");
+
+    if (registration.waiting) {
+      setWaitingServiceWorker(registration.waiting);
+    }
+
+    registration.addEventListener("updatefound", () => {
+      const newWorker = registration.installing;
+      if (!newWorker) {
+        return;
+      }
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          setWaitingServiceWorker(newWorker);
+        }
+      });
+    });
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!shouldReloadAfterControllerChange) {
+        return;
+      }
+      if (updateReloadInProgress) {
+        return;
+      }
+      updateReloadInProgress = true;
+      forceRefreshToLatestVersion();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        registration.update();
+      }
+    });
+
+    window.setInterval(() => {
+      registration.update();
+    }, 5 * 60 * 1000);
   } catch (_error) {
     // App works without service worker.
+  }
+}
+
+function setupUpdateExperience() {
+  hideUpdateHelloBar();
+
+  if (updateNowButton) {
+    updateNowButton.addEventListener("click", () => {
+      if (waitingServiceWorker) {
+        shouldReloadAfterControllerChange = true;
+        waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
+        return;
+      }
+      forceRefreshToLatestVersion();
+    });
+  }
+
+  if (updateDismissButton) {
+    updateDismissButton.addEventListener("click", () => {
+      setStoredBoolean(UPDATE_HELLO_DISMISSED_KEY, true);
+      hideUpdateHelloBar();
+    });
   }
 }
 
@@ -1454,6 +1574,7 @@ window.addEventListener("popstate", () => {
 
 async function init() {
   setupInstallExperience();
+  setupUpdateExperience();
   registerServiceWorker();
   await loadData();
   renderPhaseRadios();
