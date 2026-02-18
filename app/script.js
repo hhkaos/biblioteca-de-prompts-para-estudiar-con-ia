@@ -131,11 +131,24 @@ let trackedSearchQuery = "";
 let searchTrackingTimeout = null;
 let selectedChatbotId = "chatgpt";
 let copyFeedbackTimeout = null;
+let cardElementById = new Map();
+let specialCollaborationCardElement = null;
+let modalCloseAnimationTimeout = null;
 
 const UPDATE_BUTTON_DEFAULT_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
 const UPDATE_BUTTON_APPLYING_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Aplicando...';
+const MODAL_ANIMATION_MS = 240;
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function clearCardsCache() {
+  cardElementById = new Map();
+  specialCollaborationCardElement = null;
+}
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
@@ -720,8 +733,16 @@ function openAboutModal() {
   if (!aboutModal) {
     return;
   }
+  if (modalCloseAnimationTimeout) {
+    window.clearTimeout(modalCloseAnimationTimeout);
+    modalCloseAnimationTimeout = null;
+  }
   modalLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   aboutModal.classList.remove("hidden");
+  aboutModal.classList.remove("is-open");
+  requestAnimationFrame(() => {
+    aboutModal.classList.add("is-open");
+  });
   document.body.style.overflow = "hidden";
   if (aboutCloseButton) {
     aboutCloseButton.focus();
@@ -733,8 +754,22 @@ function closeAboutModal() {
   if (!aboutModal || aboutModal.classList.contains("hidden")) {
     return;
   }
-  aboutModal.classList.add("hidden");
-  document.body.style.overflow = "";
+  aboutModal.classList.remove("is-open");
+  const finishClose = () => {
+    aboutModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    modalCloseAnimationTimeout = null;
+  };
+
+  if (prefersReducedMotion()) {
+    finishClose();
+  } else {
+    if (modalCloseAnimationTimeout) {
+      window.clearTimeout(modalCloseAnimationTimeout);
+    }
+    modalCloseAnimationTimeout = window.setTimeout(finishClose, MODAL_ANIMATION_MS);
+  }
+
   if (modalLastFocus) {
     modalLastFocus.focus();
   }
@@ -1424,7 +1459,7 @@ function updateMetadataForExample(example, markdownTitle) {
   });
 }
 
-function renderCard(example, target) {
+function createExampleCardElement(example) {
   const card = document.createElement("button");
   card.type = "button";
   card.className = "card";
@@ -1461,10 +1496,24 @@ function renderCard(example, target) {
     }
     loadExample(example, { tabId: "summary", scroll: true, updateUrl: true, urlMode: "push" });
   });
-  target.appendChild(card);
+  return card;
 }
 
-function renderSpecialCollaborationCard(target) {
+function getOrCreateCardElement(example) {
+  const cached = cardElementById.get(example.id);
+  if (cached) {
+    return cached;
+  }
+  const card = createExampleCardElement(example);
+  cardElementById.set(example.id, card);
+  return card;
+}
+
+function getOrCreateSpecialCollaborationCardElement() {
+  if (specialCollaborationCardElement) {
+    return specialCollaborationCardElement;
+  }
+
   const card = document.createElement("button");
   card.type = "button";
   card.className = "card card-special";
@@ -1485,7 +1534,36 @@ function renderSpecialCollaborationCard(target) {
     openAboutModal();
   });
 
-  target.appendChild(card);
+  specialCollaborationCardElement = card;
+  return specialCollaborationCardElement;
+}
+
+function animateRenderedCards() {
+  if (prefersReducedMotion()) {
+    return;
+  }
+
+  const cards = Array.from(exampleCardsFooter.querySelectorAll(".card"));
+  cards.forEach((card, index) => {
+    card.style.setProperty("--card-stagger-index", String(index));
+    card.classList.remove("card-enter");
+    void card.offsetWidth;
+    card.classList.add("card-enter");
+  });
+}
+
+function renderCardsWithOptionalTransition(phase, { animate = false } = {}) {
+  const canUseViewTransitions =
+    animate && !prefersReducedMotion() && typeof document.startViewTransition === "function";
+
+  if (canUseViewTransitions) {
+    document.startViewTransition(() => {
+      renderCards(phase, { animate });
+    });
+    return;
+  }
+
+  renderCards(phase, { animate });
 }
 
 function filterExamplesBySearch(examples, query) {
@@ -1580,10 +1658,10 @@ function updateSearchPhaseNotice(phase, visibleMatchesCount) {
   }
 }
 
-function renderCards(phase) {
+function renderCards(phase, { animate = false } = {}) {
   const examples = phase ? getPhaseExamples(phase) : allExamples;
   const filtered = filterExamplesBySearch(examples, currentSearchQuery);
-  exampleCardsFooter.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   updateSearchPhaseNotice(phase, filtered.length);
 
   if (examplesCount) {
@@ -1592,13 +1670,19 @@ function renderCards(phase) {
   }
 
   if (filtered.length === 0 && currentSearchQuery) {
-    renderNoResults(exampleCardsFooter, currentSearchQuery);
+    renderNoResults(fragment, currentSearchQuery);
   } else {
     for (const example of filtered) {
-      renderCard(example, exampleCardsFooter);
+      const card = getOrCreateCardElement(example);
+      fragment.appendChild(card);
     }
   }
-  renderSpecialCollaborationCard(exampleCardsFooter);
+  fragment.appendChild(getOrCreateSpecialCollaborationCardElement());
+  exampleCardsFooter.replaceChildren(fragment);
+
+  if (animate) {
+    animateRenderedCards();
+  }
 }
 
 function closeFilterTooltip() {
@@ -1650,7 +1734,13 @@ function setGalleryDescription(phase) {
 
 function setCurrentPhase(
   phase,
-  { resetDetailPanel = true, updateUrl = true, urlMode = "push", trackAnalytics = true } = {}
+  {
+    resetDetailPanel = true,
+    updateUrl = true,
+    urlMode = "push",
+    trackAnalytics = true,
+    animateCards = true
+  } = {}
 ) {
   currentPhase = phase || null;
   if (galleryTitle) {
@@ -1659,7 +1749,7 @@ function setCurrentPhase(
       : "Galería de ejemplos";
   }
   setGalleryDescription(currentPhase);
-  renderCards(currentPhase);
+  renderCardsWithOptionalTransition(currentPhase, { animate: animateCards });
   setSelectedPhaseRadio(currentPhase ? currentPhase.id : "");
 
   if (resetDetailPanel) {
@@ -2096,7 +2186,8 @@ async function applyUrlState({ urlMode = "replace" } = {}) {
   setCurrentPhase(phase, {
     resetDetailPanel: !hasValidExample,
     updateUrl: false,
-    trackAnalytics: false
+    trackAnalytics: false,
+    animateCards: false
   });
 
   if (hasValidExample) {
@@ -2137,6 +2228,7 @@ async function init() {
   setupUpdateExperience();
   registerServiceWorker();
   await loadData();
+  clearCardsCache();
   renderPhaseRadios();
   await applyUrlState({ urlMode: "replace" });
 }
