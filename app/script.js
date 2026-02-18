@@ -14,7 +14,12 @@ const tabSummary = document.getElementById("tab-summary");
 const promptTextarea = document.getElementById("prompt-textarea");
 const promptAdjustments = document.getElementById("prompt-adjustments");
 const copyButton = document.getElementById("copy-button");
+const copyButtonLabel = document.getElementById("copy-button-label");
 const copyFeedback = document.getElementById("copy-feedback");
+const chatbotSelector = document.getElementById("chatbot-selector");
+const chatbotSelectedLabel = document.getElementById("chatbot-selected-label");
+const chatbotOptions = document.getElementById("chatbot-options");
+const chatbotManualHelp = document.getElementById("chatbot-manual-help");
 const collaborationBar = document.getElementById("collaboration-bar");
 const collabMailto = document.getElementById("collab-mailto");
 const collabSocialLinks = document.getElementById("collab-social-links");
@@ -49,6 +54,7 @@ const FILTER_TOOLTIP_MESSAGE =
 const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
 const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const UPDATE_HELLO_DISMISSED_KEY = "prompts-estudio.update-hello-dismissed";
+const SELECTED_CHATBOT_KEY = "prompts-estudio.selected-chatbot";
 const ANALYTICS_CONSENT_KEY = "prompts-estudio.analytics-consent";
 const GA_MEASUREMENT_ID = "G-NFVGQ85GJN";
 const SPECIAL_COLLAB_CARD = {
@@ -58,7 +64,20 @@ const SPECIAL_COLLAB_CARD = {
   chip: "Colabora",
   image: "content/examples/images/colabora-echas-alguna-en-falta-squared.webp"
 };
-const VALID_TABS = new Set(["summary", "prompt"]);
+const VALID_TABS = new Set(["summary"]);
+const CHATBOT_DEFINITIONS = [
+  { id: "chatgpt", label: "ChatGPT", mode: "auto", url: "https://chatgpt.com/?q=" },
+  { id: "claude", label: "Claude", mode: "auto", url: "https://claude.ai/new?q=" },
+  { id: "perplexity", label: "Perplexity", mode: "auto", url: "https://www.perplexity.ai/search/new?q=" },
+  { id: "grok", label: "Grok", mode: "auto", url: "https://grok.com/?q=" },
+  { id: "lechat", label: "Le Chat (Mistral AI)", mode: "auto", url: "https://chat.mistral.ai/chat?q=" },
+  { id: "copilot", label: "Copilot", mode: "manual", url: "https://copilot.microsoft.com/" },
+  { id: "gemini", label: "Gemini", mode: "manual", url: "https://gemini.google.com/app" },
+  { id: "qwen", label: "Qwen", mode: "manual", url: "https://chat.qwen.ai/" },
+  { id: "kimi", label: "Kimi", mode: "manual", url: "https://kimi.com/" },
+  { id: "deepseek", label: "DeepSeek", mode: "manual", url: "https://chat.deepseek.com/" }
+];
+const CHATBOT_BY_ID = Object.fromEntries(CHATBOT_DEFINITIONS.map((bot) => [bot.id, bot]));
 const SOCIAL_NETWORK_DEFINITIONS = [
   {
     id: "x",
@@ -110,6 +129,8 @@ let analyticsConsent = "unknown";
 let analyticsLoaded = false;
 let trackedSearchQuery = "";
 let searchTrackingTimeout = null;
+let selectedChatbotId = "chatgpt";
+let copyFeedbackTimeout = null;
 
 const UPDATE_BUTTON_DEFAULT_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
@@ -329,6 +350,223 @@ function buildAbsoluteImageUrl(imagePath) {
   return new URL(`../${encodeURI(imagePath.trim())}`, window.location.href).href;
 }
 
+function readStoredSelectedChatbotId() {
+  try {
+    const stored = window.localStorage.getItem(SELECTED_CHATBOT_KEY);
+    return CHATBOT_BY_ID[stored] ? stored : "chatgpt";
+  } catch (_error) {
+    return "chatgpt";
+  }
+}
+
+function persistSelectedChatbotId(chatbotId) {
+  try {
+    window.localStorage.setItem(SELECTED_CHATBOT_KEY, chatbotId);
+  } catch (_error) {
+    // Ignore storage errors (private mode/quota).
+  }
+}
+
+function getSelectedChatbot() {
+  return CHATBOT_BY_ID[selectedChatbotId] || CHATBOT_BY_ID.chatgpt;
+}
+
+function updateChatbotUi() {
+  const selected = getSelectedChatbot();
+  chatbotSelectedLabel.textContent = selected.label;
+  copyButtonLabel.textContent =
+    selected.mode === "auto" ? `Abrir en ${selected.label}` : `Copiar y abrir ${selected.label}`;
+  for (const option of chatbotOptions.querySelectorAll("input[name='chatbot-option']")) {
+    option.checked = option.value === selected.id;
+  }
+  void updateManualChatbotHelp();
+}
+
+function setSelectedChatbot(chatbotId, { persist = true, collapse = false, trackAnalytics = false } = {}) {
+  if (!CHATBOT_BY_ID[chatbotId]) {
+    return;
+  }
+  selectedChatbotId = chatbotId;
+  if (persist) {
+    persistSelectedChatbotId(chatbotId);
+  }
+  updateChatbotUi();
+  if (copyFeedbackTimeout) {
+    window.clearTimeout(copyFeedbackTimeout);
+    copyFeedbackTimeout = null;
+  }
+  copyFeedback.textContent = "";
+  copyFeedback.classList.add("hidden");
+  if (collapse && chatbotSelector) {
+    chatbotSelector.open = false;
+  }
+  if (trackAnalytics) {
+    trackEvent("chatbot_selected", {
+      chatbot_id: chatbotId,
+      chatbot_mode: CHATBOT_BY_ID[chatbotId].mode
+    });
+  }
+}
+
+function showCopyFeedback(message, { durationMs = 3200 } = {}) {
+  if (copyFeedbackTimeout) {
+    window.clearTimeout(copyFeedbackTimeout);
+    copyFeedbackTimeout = null;
+  }
+  copyFeedback.textContent = message;
+  copyFeedback.classList.remove("hidden");
+  copyFeedbackTimeout = window.setTimeout(() => {
+    copyFeedback.textContent = "";
+    copyFeedback.classList.add("hidden");
+    copyFeedbackTimeout = null;
+  }, durationMs);
+}
+
+async function getClipboardWritePermissionState() {
+  if (!navigator.permissions || !navigator.permissions.query) {
+    return "unknown";
+  }
+  try {
+    const result = await navigator.permissions.query({ name: "clipboard-write" });
+    return result.state || "unknown";
+  } catch (_error) {
+    return "unknown";
+  }
+}
+
+async function getClipboardAutocopyCapability() {
+  if (!navigator.clipboard || !navigator.clipboard.writeText) {
+    return { canAutocopy: false, reason: "unsupported" };
+  }
+  const permissionState = await getClipboardWritePermissionState();
+  if (permissionState === "granted") {
+    return { canAutocopy: true, reason: "granted" };
+  }
+  if (permissionState === "denied") {
+    return { canAutocopy: false, reason: "denied" };
+  }
+  if (permissionState === "prompt") {
+    return { canAutocopy: false, reason: "prompt" };
+  }
+  return { canAutocopy: false, reason: "unknown" };
+}
+
+function getBrowserNameForClipboardHelp() {
+  const ua = (navigator.userAgent || "").toLowerCase();
+  if (ua.includes("firefox")) {
+    return "Firefox";
+  }
+  if (ua.includes("edg/")) {
+    return "Microsoft Edge";
+  }
+  if (ua.includes("opr/") || ua.includes("opera")) {
+    return "Opera";
+  }
+  if (ua.includes("chrome") || ua.includes("chromium")) {
+    return "Chrome";
+  }
+  if (ua.includes("safari")) {
+    return "Safari";
+  }
+  return "tu navegador";
+}
+
+function buildClipboardHelpChatgptUrl(browserName) {
+  const helpPrompt =
+    `Explica qué tengo que cambiar en la configuración de mi navegador ${browserName} para permitir acceso al portapapeles de una web`;
+  return `https://chatgpt.com/?q=${encodeURIComponent(helpPrompt)}`;
+}
+
+async function updateManualChatbotHelp() {
+  const selectedAtStart = getSelectedChatbot();
+  if (selectedAtStart.mode !== "manual") {
+    chatbotManualHelp.classList.add("hidden");
+    chatbotManualHelp.classList.remove("is-warning");
+    chatbotManualHelp.textContent = "";
+    return;
+  }
+
+  chatbotManualHelp.classList.remove("hidden");
+  chatbotManualHelp.classList.add("is-warning");
+  chatbotManualHelp.innerHTML = `
+    <i class="fa-solid fa-triangle-exclamation icon-inline" aria-hidden="true"></i>
+    <span>Comprobando permisos de portapapeles para copia automática...</span>
+  `;
+
+  const capability = await getClipboardAutocopyCapability();
+  const selectedNow = getSelectedChatbot();
+  if (selectedNow.id !== selectedAtStart.id || selectedNow.mode !== "manual") {
+    return;
+  }
+
+  chatbotManualHelp.classList.remove("hidden");
+  if (capability.canAutocopy) {
+    chatbotManualHelp.classList.remove("is-warning");
+    chatbotManualHelp.textContent =
+      "Este chatbot requiere pegado manual. Al pulsar el botón se abrirá su web y se copiará la plantilla al portapapeles.";
+    return;
+  }
+
+  const warningMessageByReason = {
+    unsupported:
+      "Este navegador no permite copiar automáticamente en este contexto. Tendrás que copiar y pegar manualmente.",
+    denied:
+      "No se ha podido copiar el prompt en el portapapeles automáticamente.",
+    prompt:
+      "Aún no hay permiso de portapapeles concedido para copia automática.",
+    unknown:
+      "No se puede confirmar ahora si la copia automática al portapapeles está disponible."
+  };
+  const warningText = warningMessageByReason[capability.reason] || warningMessageByReason.unknown;
+  const browserName = getBrowserNameForClipboardHelp();
+  const helpUrl = buildClipboardHelpChatgptUrl(browserName);
+  chatbotManualHelp.classList.add("is-warning");
+  chatbotManualHelp.innerHTML = `
+    <i class="fa-solid fa-triangle-exclamation icon-inline" aria-hidden="true"></i>
+    <span>${escapeHtml(warningText)}</span>
+    <a
+      class="chatbot-manual-help-link"
+      href="${helpUrl}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      ${escapeHtml(`Ayuda para configurar los permisos en ${browserName}`)}
+    </a>
+  `;
+}
+
+async function tryCopyPromptToClipboard(prompt) {
+  try {
+    await navigator.clipboard.writeText(prompt);
+    return { copied: true, reason: "" };
+  } catch (error) {
+    const reason =
+      error && typeof error === "object" && "name" in error ? String(error.name || "") : "clipboard_write_error";
+    return { copied: false, reason };
+  }
+}
+
+function renderChatbotOptions() {
+  const optionsHtml = CHATBOT_DEFINITIONS.map((bot) => {
+    const checkedAttribute = bot.id === selectedChatbotId ? " checked" : "";
+    return `
+      <label class="chatbot-option chatbot-option-${bot.mode}">
+        <input type="radio" name="chatbot-option" value="${bot.id}"${checkedAttribute}>
+        <span>${escapeHtml(bot.label)}</span>
+      </label>
+    `;
+  }).join("");
+  chatbotOptions.innerHTML = optionsHtml;
+
+  chatbotOptions.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.name !== "chatbot-option") {
+      return;
+    }
+    setSelectedChatbot(target.value, { persist: true, collapse: true, trackAnalytics: true });
+  });
+}
+
 function getCurrentTabId() {
   const active = detailTabs.querySelector(".tab-button.active");
   if (!active) {
@@ -431,6 +669,10 @@ function resetDetail() {
   setPanelVisibility(false);
   detailTabs.classList.add("hidden");
   collaborationBar.classList.add("hidden");
+  if (copyFeedbackTimeout) {
+    window.clearTimeout(copyFeedbackTimeout);
+    copyFeedbackTimeout = null;
+  }
   copyFeedback.textContent = "";
   copyFeedback.classList.add("hidden");
 }
@@ -1588,6 +1830,10 @@ async function loadExample(
   }
   setPanelVisibility(true);
   detailTabs.classList.remove("hidden");
+  if (copyFeedbackTimeout) {
+    window.clearTimeout(copyFeedbackTimeout);
+    copyFeedbackTimeout = null;
+  }
   copyFeedback.textContent = "";
   copyFeedback.classList.add("hidden");
   activateTab(tabId);
@@ -1626,15 +1872,48 @@ for (const button of detailTabs.querySelectorAll(".tab-button")) {
 }
 
 copyButton.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(promptTextarea.value);
-    copyFeedback.textContent = "Plantilla copiada al portapapeles.";
-    copyFeedback.classList.remove("hidden");
-    trackEvent("prompt_copied", { example_id: currentExampleId || "none" });
-  } catch (_error) {
-    copyFeedback.textContent = "No se pudo copiar automáticamente. Copia manualmente desde el editor.";
-    copyFeedback.classList.remove("hidden");
-    trackEvent("prompt_copy_failed", { example_id: currentExampleId || "none" });
+  const selected = getSelectedChatbot();
+  const prompt = promptTextarea.value;
+
+  if (selected.mode === "auto") {
+    const destinationUrl = `${selected.url}${encodeURIComponent(prompt)}`;
+    window.open(destinationUrl, "_blank", "noopener,noreferrer");
+    showCopyFeedback(`Se abrió ${selected.label} con la plantilla.`);
+    trackEvent("prompt_sent_to_chatbot", {
+      chatbot_id: selected.id,
+      chatbot_mode: selected.mode,
+      example_id: currentExampleId || "none"
+    });
+    return;
+  }
+
+  const copyAttemptPromise = tryCopyPromptToClipboard(prompt);
+  window.open(selected.url, "_blank", "noopener,noreferrer");
+
+  const { copied, reason } = await copyAttemptPromise;
+  if (copied) {
+    showCopyFeedback(`Plantilla copiada. Se abrió ${selected.label} para que la pegues manualmente.`);
+    trackEvent("prompt_copied", {
+      chatbot_id: selected.id,
+      chatbot_mode: selected.mode,
+      example_id: currentExampleId || "none"
+    });
+  } else {
+    const permissionState = await getClipboardWritePermissionState();
+    showCopyFeedback(
+      "No se ha podido copiar el prompt en el portapapeles automáticamente. Usa el enlace de ayuda del aviso para ver cómo habilitarlo en tu navegador."
+    );
+    trackEvent("prompt_copy_failed", {
+      chatbot_id: selected.id,
+      chatbot_mode: selected.mode,
+      failure_reason:
+        permissionState === "denied"
+          ? "clipboard_permission_denied"
+          : permissionState === "prompt"
+            ? "clipboard_permission_not_granted"
+            : reason || "clipboard_write_error",
+      example_id: currentExampleId || "none"
+    });
   }
 });
 
@@ -1846,6 +2125,13 @@ window.addEventListener("popstate", () => {
 });
 
 async function init() {
+  selectedChatbotId = readStoredSelectedChatbotId();
+  renderChatbotOptions();
+  updateChatbotUi();
+  if (chatbotSelector) {
+    chatbotSelector.open = false;
+  }
+
   setupAnalyticsConsent();
   setupInstallExperience();
   setupUpdateExperience();

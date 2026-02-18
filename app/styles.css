@@ -653,6 +653,12 @@ h1 {
   margin: 6px 0;
 }
 
+.summary-template {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 .editor-head {
   display: flex;
   justify-content: space-between;
@@ -665,7 +671,100 @@ h1 {
   margin: 0;
 }
 
+.chatbot-selector {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fcfcfc;
+}
+
+.chatbot-selector-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.chatbot-selector-summary::-webkit-details-marker {
+  display: none;
+}
+
+.chatbot-selector-change {
+  color: var(--brand-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.chatbot-options {
+  padding: 0 10px 10px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.chatbot-option {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #fff;
+}
+
+.chatbot-option-auto {
+  border-left: 3px solid #1a8f4f;
+}
+
+.chatbot-option-manual {
+  border-left: 3px solid #d04f3f;
+}
+
+.chatbot-option input {
+  margin: 0;
+}
+
+.chatbot-manual-help {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 0.84rem;
+  border-radius: 9px;
+  border: 1px solid rgba(208, 79, 63, 0.3);
+  background: rgba(208, 79, 63, 0.08);
+}
+
+.chatbot-manual-help.is-warning {
+  border-color: rgba(208, 79, 63, 0.5);
+  background: rgba(208, 79, 63, 0.14);
+  color: #8a2b20;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.chatbot-manual-help-link {
+  margin-left: 4px;
+  color: #7a1f17;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.chatbot-manual-help-link:hover,
+.chatbot-manual-help-link:focus-visible {
+  color: #5f1711;
+}
+
 button#copy-button {
+  margin-top: 10px;
+  width: 100%;
   border: 1px solid rgba(0, 77, 67, 0.16);
   border-radius: 9px;
   padding: 7px 10px;
@@ -678,6 +777,7 @@ button#copy-button {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   transition: transform 160ms ease, box-shadow 180ms ease, filter 180ms ease;
 }

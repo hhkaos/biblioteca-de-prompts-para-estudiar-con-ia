@@ -146,29 +146,30 @@
         </article>
 
         <section id="detail-tabs" class="tabs-wrap hidden" aria-live="polite">
-          <div class="tabs">
-            <button type="button" class="tab-button active" data-tab="summary">
-              <i class="fa-regular fa-lightbulb icon-inline" aria-hidden="true"></i>
-              Resumen
-            </button>
-            <button type="button" class="tab-button" data-tab="prompt">
-              <i class="fa-regular fa-pen-to-square icon-inline" aria-hidden="true"></i>
-              Plantilla
-            </button>
-          </div>
-
           <section id="tab-summary" class="tab-panel active"></section>
 
-          <section id="tab-prompt" class="tab-panel">
+          <section id="summary-template" class="summary-template">
             <div class="editor-head">
               <h3>Plantilla editable</h3>
-              <button id="copy-button" type="button">
-                <i class="fa-regular fa-copy icon-inline" aria-hidden="true"></i>
-                Copiar plantilla
-              </button>
             </div>
-            <p id="copy-feedback" class="copy-feedback hidden" role="status" aria-live="polite"></p>
             <textarea id="prompt-textarea" spellcheck="false"></textarea>
+            <details id="chatbot-selector" class="chatbot-selector">
+              <summary id="chatbot-selector-summary" class="chatbot-selector-summary">
+                <span>
+                  Chatbot seleccionado: <strong id="chatbot-selected-label">ChatGPT</strong>
+                </span>
+                <span class="chatbot-selector-change">Cambiar chatbot</span>
+              </summary>
+              <div id="chatbot-options" class="chatbot-options" role="radiogroup" aria-label="Selecciona un chatbot"></div>
+            </details>
+            <p id="chatbot-manual-help" class="chatbot-manual-help hidden">
+              Este chatbot requiere pegado manual. Al pulsar el botón se abrirá su web y se intentará copiar la plantilla al portapapeles.
+            </p>
+            <button id="copy-button" type="button">
+              <i class="fa-regular fa-copy icon-inline" aria-hidden="true"></i>
+              <span id="copy-button-label">Abrir en ChatGPT</span>
+            </button>
+            <p id="copy-feedback" class="copy-feedback hidden" role="status" aria-live="polite"></p>
             <section id="prompt-adjustments" class="prompt-adjustments hidden"></section>
           </section>
         </section>
