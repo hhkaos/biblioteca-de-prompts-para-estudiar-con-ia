@@ -32,6 +32,10 @@ const installFeedback = document.getElementById("install-feedback");
 const updateHelloBar = document.getElementById("update-hello-bar");
 const updateNowButton = document.getElementById("update-now-button");
 const updateDismissButton = document.getElementById("update-dismiss-button");
+const cookieConsentBar = document.getElementById("cookie-consent-bar");
+const cookieAcceptButton = document.getElementById("cookie-accept-button");
+const cookieRejectButton = document.getElementById("cookie-reject-button");
+const cookiePreferencesButton = document.getElementById("cookie-preferences-button");
 const searchInput = document.getElementById("search-input");
 const searchClear = document.getElementById("search-clear");
 const searchPhaseNotice = document.getElementById("search-phase-notice");
@@ -45,6 +49,8 @@ const FILTER_TOOLTIP_MESSAGE =
 const INSTALL_HELLO_DISMISSED_KEY = "prompts-estudio.install-hello-dismissed";
 const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const UPDATE_HELLO_DISMISSED_KEY = "prompts-estudio.update-hello-dismissed";
+const ANALYTICS_CONSENT_KEY = "prompts-estudio.analytics-consent";
+const GA_MEASUREMENT_ID = "G-NFVGQ85GJN";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
   title: "¿Echas en falta alguna?",
@@ -100,6 +106,10 @@ let waitingServiceWorker = null;
 let updateReloadInProgress = false;
 let shouldReloadAfterControllerChange = false;
 let updateControllerChangeFallbackTimeout = null;
+let analyticsConsent = "unknown";
+let analyticsLoaded = false;
+let trackedSearchQuery = "";
+let searchTrackingTimeout = null;
 
 const UPDATE_BUTTON_DEFAULT_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
@@ -359,14 +369,19 @@ function writeUrlState({ phaseId, exampleId, tabId }, { mode = "push" } = {}) {
 
   const next = `${url.pathname}${url.search}${url.hash}`;
   const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  let hasNavigated = false;
   if (next !== current) {
     const historyMethod = mode === "replace" ? "replaceState" : "pushState";
     window.history[historyMethod](null, "", next);
+    hasNavigated = true;
   }
   syncMetaUrl();
+  if (hasNavigated) {
+    trackPageView();
+  }
 }
 
-function activateTab(tabId, { updateUrl = false, urlMode = "push" } = {}) {
+function activateTab(tabId, { updateUrl = false, urlMode = "push", trackAnalytics = false } = {}) {
   const safeTabId = VALID_TABS.has(tabId) ? tabId : "summary";
   for (const button of detailTabs.querySelectorAll(".tab-button")) {
     button.classList.toggle("active", button.dataset.tab === safeTabId);
@@ -396,6 +411,13 @@ function activateTab(tabId, { updateUrl = false, urlMode = "push" } = {}) {
     if (currentExample) {
       updateCollaborationBar(currentExample);
     }
+  }
+
+  if (trackAnalytics && currentExampleId) {
+    trackEvent("example_tab_changed", {
+      tab_id: safeTabId,
+      example_id: currentExampleId
+    });
   }
 }
 
@@ -462,6 +484,7 @@ function openAboutModal() {
   if (aboutCloseButton) {
     aboutCloseButton.focus();
   }
+  trackEvent("about_modal_opened");
 }
 
 function closeAboutModal() {
@@ -489,6 +512,130 @@ function setStoredBoolean(key, value) {
     window.localStorage.setItem(key, value ? "true" : "false");
   } catch (_error) {
     // Ignore storage failures (private mode / blocked storage).
+  }
+}
+
+function getStoredAnalyticsConsent() {
+  try {
+    const value = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+    return value === "granted" || value === "denied" ? value : "unknown";
+  } catch (_error) {
+    return "unknown";
+  }
+}
+
+function setStoredAnalyticsConsent(value) {
+  try {
+    window.localStorage.setItem(ANALYTICS_CONSENT_KEY, value);
+  } catch (_error) {
+    // Ignore storage failures (private mode / blocked storage).
+  }
+}
+
+function hideCookieConsentBar() {
+  if (cookieConsentBar) {
+    cookieConsentBar.classList.add("hidden");
+  }
+}
+
+function showCookieConsentBar() {
+  if (cookieConsentBar) {
+    cookieConsentBar.classList.remove("hidden");
+  }
+}
+
+function loadAnalyticsScript() {
+  if (analyticsLoaded) {
+    return;
+  }
+
+  analyticsLoaded = true;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function gtag() {
+    window.dataLayer.push(arguments);
+  };
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
+  document.head.appendChild(script);
+
+  window.gtag("consent", "default", {
+    analytics_storage: "denied"
+  });
+  window.gtag("js", new Date());
+  window.gtag("config", GA_MEASUREMENT_ID, {
+    anonymize_ip: true,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false
+  });
+}
+
+function trackEvent(eventName, params = {}) {
+  if (analyticsConsent !== "granted" || typeof window.gtag !== "function") {
+    return;
+  }
+  window.gtag("event", eventName, params);
+}
+
+function trackPageView() {
+  if (analyticsConsent !== "granted" || typeof window.gtag !== "function") {
+    return;
+  }
+  window.gtag("event", "page_view", {
+    page_title: document.title,
+    page_location: window.location.href,
+    page_path: `${window.location.pathname}${window.location.search}`
+  });
+}
+
+function applyAnalyticsConsent(consent, { persist = true, track = true } = {}) {
+  analyticsConsent = consent === "granted" ? "granted" : "denied";
+  if (persist) {
+    setStoredAnalyticsConsent(analyticsConsent);
+  }
+  if (analyticsConsent === "granted") {
+    loadAnalyticsScript();
+    if (typeof window.gtag === "function") {
+      window.gtag("consent", "update", { analytics_storage: "granted" });
+    }
+    if (track) {
+      trackEvent("analytics_consent_updated", { consent_state: "granted" });
+    }
+  } else if (typeof window.gtag === "function") {
+    window.gtag("consent", "update", { analytics_storage: "denied" });
+  }
+  hideCookieConsentBar();
+}
+
+function setupAnalyticsConsent() {
+  analyticsConsent = getStoredAnalyticsConsent();
+  if (analyticsConsent === "granted") {
+    applyAnalyticsConsent("granted", { persist: false, track: false });
+  } else if (analyticsConsent === "denied") {
+    hideCookieConsentBar();
+  } else {
+    showCookieConsentBar();
+  }
+
+  if (cookieAcceptButton) {
+    cookieAcceptButton.addEventListener("click", () => {
+      applyAnalyticsConsent("granted", { persist: true, track: false });
+      trackEvent("analytics_consent_updated", { consent_state: "granted" });
+    });
+  }
+
+  if (cookieRejectButton) {
+    cookieRejectButton.addEventListener("click", () => {
+      applyAnalyticsConsent("denied", { persist: true, track: false });
+    });
+  }
+
+  if (cookiePreferencesButton) {
+    cookiePreferencesButton.addEventListener("click", () => {
+      closeAboutModal();
+      showCookieConsentBar();
+    });
   }
 }
 
@@ -745,6 +892,7 @@ function setupInstallExperience() {
 
   if (installFromBarButton) {
     installFromBarButton.addEventListener("click", () => {
+      trackEvent("install_clicked", { source: "install_hello_bar" });
       installApp("bar");
     });
   }
@@ -759,6 +907,7 @@ function setupInstallExperience() {
 
   if (installFromModalButton) {
     installFromModalButton.addEventListener("click", () => {
+      trackEvent("install_clicked", { source: "about_modal" });
       installApp("modal");
     });
   }
@@ -819,6 +968,7 @@ function setupUpdateExperience() {
   if (updateNowButton) {
     resetUpdateUi();
     updateNowButton.addEventListener("click", () => {
+      trackEvent("update_started");
       beginUpdateFlow();
     });
   }
@@ -908,6 +1058,7 @@ function configureMailtoLink(example, exampleUrl) {
     collabMailto.href = "#";
     collabMailto.setAttribute("aria-disabled", "true");
     collabMailto.title = "Configura tu email en app/collab-config.js";
+    collabMailto.onclick = null;
     return;
   }
 
@@ -917,6 +1068,12 @@ function configureMailtoLink(example, exampleUrl) {
   const body = `Hola,\n\nQuiero proponer una mejora para este ejemplo:\n${example.title}\n${exampleUrl}\n\nSugerencia:\n`;
   const mailtoUrl = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   collabMailto.href = mailtoUrl;
+  collabMailto.onclick = () => {
+    trackEvent("collaboration_click", {
+      channel: "email",
+      example_id: example.id
+    });
+  };
 }
 
 function renderSocialLinks(example, exampleUrl) {
@@ -938,6 +1095,12 @@ function renderSocialLinks(example, exampleUrl) {
     link.rel = "noopener noreferrer";
     link.className = "collab-social-link";
     link.innerHTML = `<i class="${network.iconClass} icon-inline" aria-hidden="true"></i>${escapeHtml(network.label)}`;
+    link.addEventListener("click", () => {
+      trackEvent("collaboration_click", {
+        channel: network.id,
+        example_id: example.id
+      });
+    });
     collabSocialLinks.appendChild(link);
     linksCount += 1;
   }
@@ -954,6 +1117,12 @@ function configureTelegramLink(example, exampleUrl) {
   const username = sanitizeHandle(collaborationConfig.telegramUsername || "hhkaos");
   const message = `Hola ${username}, tengo una sugerencia para "${example.title}": ${exampleUrl}`;
   collabTelegram.href = `https://t.me/${username}?text=${encodeURIComponent(message)}`;
+  collabTelegram.onclick = () => {
+    trackEvent("collaboration_click", {
+      channel: "telegram",
+      example_id: example.id
+    });
+  };
 }
 
 function updateCollaborationBar(example) {
@@ -1070,6 +1239,7 @@ function renderSpecialCollaborationCard(target) {
   `;
 
   card.addEventListener("click", () => {
+    trackEvent("collaboration_card_opened");
     openAboutModal();
   });
 
@@ -1236,7 +1406,10 @@ function setGalleryDescription(phase) {
   `;
 }
 
-function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, urlMode = "push" } = {}) {
+function setCurrentPhase(
+  phase,
+  { resetDetailPanel = true, updateUrl = true, urlMode = "push", trackAnalytics = true } = {}
+) {
   currentPhase = phase || null;
   if (galleryTitle) {
     galleryTitle.textContent = currentPhase
@@ -1266,6 +1439,14 @@ function setCurrentPhase(phase, { resetDetailPanel = true, updateUrl = true, url
       },
       { mode: urlMode }
     );
+  }
+
+  if (trackAnalytics) {
+    trackEvent("phase_filter_changed", {
+      phase_id: currentPhase ? currentPhase.id : "all",
+      phase_name: currentPhase ? currentPhase.name : "Todas las fases",
+      has_search_query: currentSearchQuery ? "yes" : "no"
+    });
   }
 }
 
@@ -1356,7 +1537,7 @@ function renderPhaseRadios() {
 
 async function loadExample(
   example,
-  { tabId = "summary", scroll = true, updateUrl = true, urlMode = "push" } = {}
+  { tabId = "summary", scroll = true, updateUrl = true, urlMode = "push", trackAnalytics = true } = {}
 ) {
   const res = await fetch(`../${example.file}`);
   const markdown = await res.text();
@@ -1428,11 +1609,19 @@ async function loadExample(
   if (scroll) {
     scrollToDetailPanel();
   }
+
+  if (trackAnalytics) {
+    trackEvent("example_opened", {
+      example_id: example.id,
+      example_title: example.title,
+      phase_id: currentPhase ? currentPhase.id : "all"
+    });
+  }
 }
 
 for (const button of detailTabs.querySelectorAll(".tab-button")) {
   button.addEventListener("click", () => {
-    activateTab(button.dataset.tab, { updateUrl: true, urlMode: "push" });
+    activateTab(button.dataset.tab, { updateUrl: true, urlMode: "push", trackAnalytics: true });
   });
 }
 
@@ -1441,9 +1630,11 @@ copyButton.addEventListener("click", async () => {
     await navigator.clipboard.writeText(promptTextarea.value);
     copyFeedback.textContent = "Plantilla copiada al portapapeles.";
     copyFeedback.classList.remove("hidden");
+    trackEvent("prompt_copied", { example_id: currentExampleId || "none" });
   } catch (_error) {
     copyFeedback.textContent = "No se pudo copiar automáticamente. Copia manualmente desde el editor.";
     copyFeedback.classList.remove("hidden");
+    trackEvent("prompt_copy_failed", { example_id: currentExampleId || "none" });
   }
 });
 
@@ -1482,6 +1673,7 @@ if (panelToggleButton) {
     }
     const shouldShow = !isPanelVisible();
     setPanelVisibility(shouldShow);
+    trackEvent("detail_panel_toggled", { state: shouldShow ? "visible" : "hidden" });
     if (shouldShow) {
       scrollToDetailPanel();
     }
@@ -1561,15 +1753,47 @@ function clearSearch() {
   searchInput.value = "";
   searchClear.classList.add("hidden");
   renderCards(currentPhase);
+  trackedSearchQuery = "";
+  if (searchTrackingTimeout) {
+    window.clearTimeout(searchTrackingTimeout);
+    searchTrackingTimeout = null;
+  }
 }
 
 searchInput.addEventListener("input", () => {
   currentSearchQuery = searchInput.value.trim();
   searchClear.classList.toggle("hidden", !currentSearchQuery);
   renderCards(currentPhase);
+
+  if (searchTrackingTimeout) {
+    window.clearTimeout(searchTrackingTimeout);
+    searchTrackingTimeout = null;
+  }
+
+  if (currentSearchQuery.length < 2 || currentSearchQuery === trackedSearchQuery) {
+    return;
+  }
+
+  searchTrackingTimeout = window.setTimeout(() => {
+    const query = currentSearchQuery.trim();
+    if (query.length < 2 || query === trackedSearchQuery) {
+      return;
+    }
+    trackedSearchQuery = query;
+    const pool = currentPhase ? getPhaseExamples(currentPhase) : allExamples;
+    const matches = filterExamplesBySearch(pool, query).length;
+    trackEvent("search_used", {
+      search_term: query.slice(0, 80),
+      results_count: matches,
+      phase_id: currentPhase ? currentPhase.id : "all"
+    });
+  }, 700);
 });
 
 searchClear.addEventListener("click", () => {
+  if (currentSearchQuery) {
+    trackEvent("search_cleared", { previous_query_length: currentSearchQuery.length });
+  }
   clearSearch();
   searchInput.focus();
 });
@@ -1590,13 +1814,18 @@ async function applyUrlState({ urlMode = "replace" } = {}) {
     requestedExample && phaseContainsExample(phase, requestedExample.id) && isExampleLoadable(requestedExample)
   );
 
-  setCurrentPhase(phase, { resetDetailPanel: !hasValidExample, updateUrl: false });
+  setCurrentPhase(phase, {
+    resetDetailPanel: !hasValidExample,
+    updateUrl: false,
+    trackAnalytics: false
+  });
 
   if (hasValidExample) {
     await loadExample(requestedExample, {
       tabId,
       scroll: false,
-      updateUrl: false
+      updateUrl: false,
+      trackAnalytics: false
     });
   } else {
     updateMetadataForPhase(phase);
@@ -1617,6 +1846,7 @@ window.addEventListener("popstate", () => {
 });
 
 async function init() {
+  setupAnalyticsConsent();
   setupInstallExperience();
   setupUpdateExperience();
   registerServiceWorker();
