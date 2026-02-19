@@ -1760,6 +1760,39 @@ button#copy-button:focus-visible {
   }
 }
 
+.wizard-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.wizard-clear-button {
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(198, 40, 40, 0.4);
+  background: rgba(198, 40, 40, 0.07);
+  color: #b71c1c;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.wizard-clear-button:hover,
+.wizard-clear-button:focus-visible {
+  border-color: #c62828;
+  background: rgba(198, 40, 40, 0.12);
+  box-shadow: 0 6px 16px rgba(198, 40, 40, 0.22);
+  transform: translateY(-1px);
+  outline: none;
+}
+
 .wizard-field {
   margin-bottom: 14px;
 }
@@ -1961,9 +1994,24 @@ button#copy-button:focus-visible {
   color: #7a2e00;
 }
 
+.clear-data-note--scope {
+  background: rgba(198, 40, 40, 0.08);
+  color: #7a2e00;
+}
+
+.clear-data-note--shared {
+  background: rgba(239, 108, 0, 0.12);
+  color: #7a2e00;
+}
+
 .clear-data-confirm-btn {
   background: linear-gradient(135deg, #c62828, #b71c1c) !important;
   box-shadow: 0 4px 14px rgba(198, 40, 40, 0.3) !important;
+}
+
+.clear-data-confirm-btn--soft {
+  background: linear-gradient(135deg, #ef6c00, #e65100) !important;
+  box-shadow: 0 4px 14px rgba(239, 108, 0, 0.28) !important;
 }
 
 .clear-data-confirm-btn:hover,
@@ -1971,6 +2019,12 @@ button#copy-button:focus-visible {
   background: linear-gradient(135deg, #b71c1c, #9a1010) !important;
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(198, 40, 40, 0.38) !important;
+}
+
+.clear-data-confirm-btn--soft:hover,
+.clear-data-confirm-btn--soft:focus-visible {
+  background: linear-gradient(135deg, #e65100, #bf360c) !important;
+  box-shadow: 0 6px 18px rgba(230, 81, 0, 0.34) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

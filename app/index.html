@@ -101,7 +101,7 @@
           <i class="fa-solid fa-circle-info icon-inline" aria-hidden="true"></i>
           Sobre la app
         </button>
-        <button id="clear-data-button" class="hero-action-link hero-action-link--danger hidden" type="button" aria-label="Gestionar datos guardados">
+        <button id="clear-data-button" class="hero-action-link hero-action-link--danger" type="button" aria-label="Gestionar datos guardados">
           <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
         </button>
       </div>
@@ -167,6 +167,18 @@
             </div>
             <section id="prompt-adjustments" class="prompt-adjustments hidden is-collapsed" aria-hidden="true"></section>
             <div id="wizard-panel" class="wizard-panel hidden" aria-live="polite">
+              <div class="wizard-panel-actions">
+                <button
+                  id="clear-data-wizard-button"
+                  class="wizard-clear-button"
+                  type="button"
+                  aria-label="Borrar datos guardados"
+                  title="Borrar datos guardados"
+                >
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  <span>Borrar datos</span>
+                </button>
+              </div>
               <div id="wizard-fields" class="wizard-fields"></div>
             </div>
             <textarea id="prompt-textarea" spellcheck="false"></textarea>
@@ -308,11 +320,17 @@
             <i class="fa-solid fa-circle-exclamation icon-inline" aria-hidden="true"></i>
             <strong>Si los eliminas,</strong> tendrás que volver a rellenar esos campos la próxima vez que uses el modo guiado.
           </p>
+          <p id="clear-data-scope-note" class="clear-data-note clear-data-note--scope hidden"></p>
+          <p id="clear-data-shared-note" class="clear-data-note clear-data-note--shared hidden"></p>
           <div class="modal-footer-actions">
             <button id="clear-data-cancel" class="install-ghost-button" type="button">Cancelar</button>
+            <button id="clear-data-current" class="install-primary-button clear-data-confirm-btn clear-data-confirm-btn--soft hidden" type="button">
+              <i class="fa-solid fa-eraser icon-inline" aria-hidden="true"></i>
+              Solo esta plantilla
+            </button>
             <button id="clear-data-confirm" class="install-primary-button clear-data-confirm-btn" type="button">
               <i class="fa-solid fa-trash-can icon-inline" aria-hidden="true"></i>
-              Eliminar datos guardados
+              Todas las plantillas
             </button>
           </div>
         </div>

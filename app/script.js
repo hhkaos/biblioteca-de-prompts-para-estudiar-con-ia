@@ -32,6 +32,7 @@ const wizardToggleButton = document.getElementById("wizard-toggle-button");
 const wizardToggleLabel = document.getElementById("wizard-toggle-label");
 const wizardPanel = document.getElementById("wizard-panel");
 const wizardFieldsEl = document.getElementById("wizard-fields");
+const clearDataWizardButton = document.getElementById("clear-data-wizard-button");
 const unfilledWarningModal = document.getElementById("unfilled-warning-modal");
 const unfilledCountEl = document.getElementById("unfilled-count");
 const unfilledWarningClose = document.getElementById("unfilled-warning-close");
@@ -58,8 +59,11 @@ const clearDataButton = document.getElementById("clear-data-button");
 const clearDataModal = document.getElementById("clear-data-modal");
 const clearDataClose = document.getElementById("clear-data-close");
 const clearDataCancel = document.getElementById("clear-data-cancel");
+const clearDataCurrent = document.getElementById("clear-data-current");
 const clearDataConfirm = document.getElementById("clear-data-confirm");
 const clearDataFieldsList = document.getElementById("clear-data-fields-list");
+const clearDataScopeNote = document.getElementById("clear-data-scope-note");
+const clearDataSharedNote = document.getElementById("clear-data-shared-note");
 
 const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
@@ -160,6 +164,7 @@ let basePromptTemplate = "";
 let unfilledWarningOnProceed = null;
 let unfilledWarningCloseAnimTimeout = null;
 let clearDataModalCloseAnimTimeout = null;
+let clearDataCurrentTemplateKeys = [];
 
 const UPDATE_BUTTON_DEFAULT_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
@@ -1073,9 +1078,63 @@ function clearAllSavedFields() {
   }
 }
 
+function getCurrentTemplateWizardKeys() {
+  if (!wizardFieldsEl) {
+    return [];
+  }
+  const keys = new Set();
+  for (const el of wizardFieldsEl.querySelectorAll("[data-wizard-key]")) {
+    const key = String(el.dataset.wizardKey || "").trim();
+    if (key) {
+      keys.add(key);
+    }
+  }
+  return Array.from(keys);
+}
+
+function clearSavedFieldsByKeys(keys) {
+  if (!Array.isArray(keys) || keys.length === 0) {
+    return;
+  }
+  try {
+    for (const key of keys) {
+      window.localStorage.removeItem(FIELD_STORAGE_PREFIX + key);
+    }
+  } catch (_error) {
+    // Ignore.
+  }
+}
+
+function clearCurrentWizardInputs() {
+  if (!wizardFieldsEl) {
+    return;
+  }
+  for (const el of wizardFieldsEl.querySelectorAll("input, textarea, select")) {
+    if (el instanceof HTMLInputElement) {
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = false;
+      } else {
+        el.value = "";
+      }
+      continue;
+    }
+    if (el instanceof HTMLTextAreaElement) {
+      el.value = "";
+      continue;
+    }
+    if (el instanceof HTMLSelectElement) {
+      el.selectedIndex = 0;
+    }
+  }
+}
+
 function updateClearDataButton() {
   if (!clearDataButton) return;
-  clearDataButton.classList.toggle("hidden", !hasSavedFields());
+  clearDataButton.classList.remove("hidden");
+  clearDataButton.setAttribute(
+    "aria-label",
+    hasSavedFields() ? "Gestionar datos guardados" : "No hay datos guardados"
+  );
 }
 
 function applySavedFieldsToText(text) {
@@ -1147,8 +1206,10 @@ function restoreSavedFieldValues() {
 
 // ── Clear-data modal ─────────────────────────────────
 
-function showClearDataModal() {
+function showClearDataModal({ currentTemplateKeys = [] } = {}) {
+  clearDataCurrentTemplateKeys = Array.isArray(currentTemplateKeys) ? currentTemplateKeys : [];
   const saved = getSavedFields();
+  const hasCurrentTemplateKeys = clearDataCurrentTemplateKeys.length > 0;
   if (clearDataFieldsList) {
     const entries = Object.entries(saved);
     if (entries.length === 0) {
@@ -1160,6 +1221,35 @@ function showClearDataModal() {
             `<li class="saved-field-item"><span class="saved-field-key">${escapeHtml(key)}</span><span class="saved-field-value">${escapeHtml(val)}</span></li>`
         )
         .join("");
+    }
+  }
+  if (clearDataCurrent) {
+    clearDataCurrent.classList.toggle("hidden", !hasCurrentTemplateKeys);
+    clearDataCurrent.disabled = !hasCurrentTemplateKeys;
+  }
+  if (clearDataScopeNote) {
+    if (hasCurrentTemplateKeys) {
+      clearDataScopeNote.classList.remove("hidden");
+      const fieldLabel = clearDataCurrentTemplateKeys.length === 1 ? "campo" : "campos";
+      clearDataScopeNote.innerHTML = `
+        <i class="fa-solid fa-circle-question icon-inline" aria-hidden="true"></i>
+        Elige si quieres borrar solo los ${clearDataCurrentTemplateKeys.length} ${fieldLabel} de esta plantilla o de todas.
+      `;
+    } else {
+      clearDataScopeNote.classList.add("hidden");
+      clearDataScopeNote.textContent = "";
+    }
+  }
+  if (clearDataSharedNote) {
+    if (hasCurrentTemplateKeys) {
+      clearDataSharedNote.classList.remove("hidden");
+      clearDataSharedNote.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation icon-inline" aria-hidden="true"></i>
+        Hay campos compartidos entre plantillas. Si borras "Solo esta plantilla", esos valores compartidos también desaparecerán de las demás.
+      `;
+    } else {
+      clearDataSharedNote.classList.add("hidden");
+      clearDataSharedNote.textContent = "";
     }
   }
   modalLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -1199,6 +1289,12 @@ if (clearDataButton) {
   clearDataButton.addEventListener("click", () => showClearDataModal());
 }
 
+if (clearDataWizardButton) {
+  clearDataWizardButton.addEventListener("click", () => {
+    showClearDataModal({ currentTemplateKeys: getCurrentTemplateWizardKeys() });
+  });
+}
+
 if (clearDataClose) {
   clearDataClose.addEventListener("click", () => closeClearDataModal());
 }
@@ -1210,6 +1306,20 @@ if (clearDataCancel) {
 if (clearDataConfirm) {
   clearDataConfirm.addEventListener("click", () => {
     clearAllSavedFields();
+    if (wizardActive) {
+      clearCurrentWizardInputs();
+      updatePromptFromWizard();
+    }
+    updateClearDataButton();
+    closeClearDataModal();
+  });
+}
+
+if (clearDataCurrent) {
+  clearDataCurrent.addEventListener("click", () => {
+    clearSavedFieldsByKeys(clearDataCurrentTemplateKeys);
+    clearCurrentWizardInputs();
+    updatePromptFromWizard();
     updateClearDataButton();
     closeClearDataModal();
   });
