@@ -1,4 +1,4 @@
-const CACHE_VERSION = "prompts-estudio-v3";
+const CACHE_VERSION = "prompts-estudio-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -10,15 +10,28 @@ const APP_SHELL = [
   "./assets/icons/favicon-32.png",
   "./assets/icons/apple-touch-icon.png",
   "./assets/icons/icon-192.png",
-  "./assets/icons/icon-512.png",
+  "./assets/icons/icon-512.png"
+];
+const OPTIONAL_CONTENT_ASSETS = [
   "../content/phases.json",
-  "../content/examples/index.json"
+  "../content/examples/index.json",
+  "./content/phases.json",
+  "./content/examples/index.json"
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    await cache.addAll(APP_SHELL);
+    await Promise.allSettled(
+      OPTIONAL_CONTENT_ASSETS.map(async (assetPath) => {
+        const response = await fetch(assetPath);
+        if (response.ok) {
+          await cache.put(assetPath, response);
+        }
+      })
+    );
+  })());
 });
 
 self.addEventListener("activate", (event) => {

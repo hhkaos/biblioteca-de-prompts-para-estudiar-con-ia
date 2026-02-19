@@ -166,6 +166,75 @@ const UPDATE_BUTTON_DEFAULT_HTML =
 const UPDATE_BUTTON_APPLYING_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Aplicando...';
 const MODAL_ANIMATION_MS = 240;
+const APP_DIR_URL = new URL("./", import.meta.url);
+const CONTENT_BASE_CANDIDATES = [
+  new URL("../", APP_DIR_URL),
+  APP_DIR_URL
+];
+
+let resolvedContentBaseUrl = null;
+
+function normalizeContentPath(path) {
+  return String(path || "")
+    .trim()
+    .replace(/^\.?\//, "")
+    .replace(/^\/+/, "");
+}
+
+function getContentBaseCandidates() {
+  const urls = resolvedContentBaseUrl
+    ? [resolvedContentBaseUrl, ...CONTENT_BASE_CANDIDATES]
+    : [...CONTENT_BASE_CANDIDATES];
+  const seen = new Set();
+  return urls.filter((url) => {
+    const key = url.href;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function buildContentUrl(path, baseUrl) {
+  const cleanPath = normalizeContentPath(path);
+  if (!cleanPath) {
+    return "";
+  }
+  return new URL(cleanPath, baseUrl || getContentBaseCandidates()[0]).href;
+}
+
+function buildContentAssetUrl(path) {
+  const cleanPath = normalizeContentPath(path);
+  if (!cleanPath) {
+    return "";
+  }
+  return buildContentUrl(encodeURI(cleanPath));
+}
+
+async function fetchFromContent(path) {
+  const cleanPath = normalizeContentPath(path);
+  if (!cleanPath) {
+    throw new Error("Invalid content path");
+  }
+
+  let lastError = null;
+  for (const baseUrl of getContentBaseCandidates()) {
+    const url = buildContentUrl(cleanPath, baseUrl);
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        resolvedContentBaseUrl = baseUrl;
+        return response;
+      }
+      lastError = new Error(`HTTP ${response.status} for ${url}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error(`Failed to fetch content path: ${cleanPath}`);
+}
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -178,8 +247,8 @@ function clearCardsCache() {
 
 async function loadData() {
   const [phasesRes, examplesRes] = await Promise.all([
-    fetch("../content/phases.json"),
-    fetch("../content/examples/index.json")
+    fetchFromContent("content/phases.json"),
+    fetchFromContent("content/examples/index.json")
   ]);
 
   const phaseData = await phasesRes.json();
@@ -507,7 +576,7 @@ function buildAbsoluteImageUrl(imagePath) {
   if (!imagePath || !imagePath.trim()) {
     return "";
   }
-  return new URL(`../${encodeURI(imagePath.trim())}`, window.location.href).href;
+  return buildContentAssetUrl(imagePath);
 }
 
 function readStoredSelectedChatbotId() {
@@ -1912,8 +1981,9 @@ function createExampleCardElement(example) {
   }
 
   const hasImage = Boolean(example.image && example.image.trim());
+  const cardImageUrl = hasImage ? buildContentAssetUrl(example.image) : "";
   const mediaStyle = hasImage
-    ? `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12)), url('../${example.image}'); color: #ffffff;`
+    ? `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12)), url('${cardImageUrl}'); color: #ffffff;`
     : "";
   const placeholderText = hasImage ? "" : "Imagen IA pendiente";
   const chipHtml = isUnderConstruction
@@ -1956,7 +2026,9 @@ function getOrCreateSpecialCollaborationCardElement() {
   card.type = "button";
   card.className = "card card-special";
   card.dataset.exampleId = SPECIAL_COLLAB_CARD.id;
-  const mediaStyle = `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.08)), url('../${SPECIAL_COLLAB_CARD.image}'); color: #ffffff;`;
+  const mediaStyle =
+    `background-image: linear-gradient(135deg, rgba(0,0,0,0.22), rgba(0,0,0,0.08)), ` +
+    `url('${buildContentAssetUrl(SPECIAL_COLLAB_CARD.image)}'); color: #ffffff;`;
   card.innerHTML = `
     <div class="card-media card-media-tight-image" style="${mediaStyle}">
       <span class="card-chip card-chip-overlay">${escapeHtml(SPECIAL_COLLAB_CARD.chip)}</span>
@@ -2316,7 +2388,7 @@ async function loadExample(
   example,
   { tabId = "summary", scroll = true, updateUrl = true, urlMode = "push", trackAnalytics = true } = {}
 ) {
-  const res = await fetch(`../${example.file}`);
+  const res = await fetchFromContent(example.file);
   const rawMarkdown = await res.text();
   const { wizardConfig: parsedWizardConfig, markdown } = parseMarkdownWithFrontmatter(rawMarkdown);
 
@@ -2326,7 +2398,7 @@ async function loadExample(
     sectionMap["Cómo usarlo"] || sectionMap["Como usarlo"] || sectionMap["Qué consigues"] || []
   );
   const adjustmentsHtml = linesToHtml(sectionMap["Ajustes rápidos"] || []);
-  const imagePath = example.image && example.image.trim() ? `../${encodeURI(example.image.trim())}` : "";
+  const imagePath = example.image && example.image.trim() ? buildContentAssetUrl(example.image) : "";
   const thumbnailHtml = imagePath
     ? `<img class="example-view-thumb" src="${imagePath}" alt="${escapeHtml(example.title)}">`
     : "";
