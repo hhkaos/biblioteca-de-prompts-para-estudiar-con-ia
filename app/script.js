@@ -67,7 +67,7 @@ const clearDataSharedNote = document.getElementById("clear-data-shared-note");
 
 const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
-  "Prompts para estudiar con IA por fases del aprendizaje para alumnado y familias.";
+  "Biblioteca de prompts para estudiar con IA, organizada por fases del aprendizaje, con ejemplos prácticos para alumnado, familias y docentes.";
 const UNDER_CONSTRUCTION_LABEL = "En construcción";
 const FILTER_TOOLTIP_MESSAGE =
   "Para filtrar por fase del estudio, pulsa una de las fases que aparecen arriba.";

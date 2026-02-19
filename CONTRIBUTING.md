@@ -237,3 +237,63 @@ wizard:
 3. Asegúrate de que el `key` de cada campo coincide exactamente con el placeholder.
 4. Usa `hint` cuando el campo necesite aclaración adicional.
 5. Verifica la sangría: exactamente 2 espacios por nivel, sin tabuladores.
+
+---
+
+## Imagen social (Open Graph / Twitter)
+
+Esta app usa metadatos en `app/index.html` para que al compartir enlace en redes aparezca una imagen de vista previa.
+
+### Ruta y tamaño recomendados
+
+- Ruta de imagen actual: `app/assets/social/og-image.jpg`
+- URL pública actual:
+  `https://www.rauljimenez.info/biblioteca-de-prompts-para-estudiar-con-ia/app/assets/social/og-image.jpg`
+- Tamaño recomendado: `1200x630` px
+- Formato recomendado: `JPG` o `PNG`
+- Peso recomendado: `< 1 MB`
+
+### Cambiar la imagen
+
+1. Sustituye el fichero `app/assets/social/og-image.jpg` por la nueva imagen (idealmente `1200x630`).
+2. Revisa en `app/index.html` que estos metadatos están presentes y con URL absoluta:
+   - `og:image`
+   - `og:image:width`
+   - `og:image:height`
+   - `og:image:alt`
+   - `og:url`
+   - `twitter:card` (recomendado: `summary_large_image`)
+   - `twitter:image`
+   - `twitter:image:alt`
+
+### Verificar que la vista previa se actualiza
+
+1. LinkedIn:
+   - Abre `https://www.linkedin.com/post-inspector/inspect/`
+   - Pega la URL de la app:
+     `https://www.rauljimenez.info/biblioteca-de-prompts-para-estudiar-con-ia/app/`
+   - Verifica título, descripción e imagen.
+2. Meta/WhatsApp:
+   - Abre `https://developers.facebook.com/tools/debug/`
+   - Pega la misma URL de la app y pulsa `Scrape Again`.
+   - WhatsApp suele apoyarse en este ecosistema para refrescar previsualizaciones.
+3. X:
+   - Abre `https://cards-dev.x.com/validator` (si está disponible con tu cuenta).
+   - Valida la misma URL y confirma la tarjeta.
+4. Pinterest:
+   - Abre `https://developers.pinterest.com/tools/url-debugger/`
+   - Valida la misma URL de la app y confirma imagen, título y descripción.
+5. Prueba final en apps reales:
+   - Pega el enlace en un chat de WhatsApp.
+   - Pega el enlace en el compositor de publicación de LinkedIn/X/Pinterest.
+
+### Evitar caché de redes al actualizar imagen
+
+1. Usa versionado en la URL de imagen:
+   - Opción A: query string (ejemplo)
+     `https://www.rauljimenez.info/biblioteca-de-prompts-para-estudiar-con-ia/app/assets/social/og-image.jpg?v=2026-02-19`
+   - Opción B: nombre nuevo de fichero (ejemplo)
+     `og-image-v2.jpg`
+2. Si cambias la imagen, actualiza `og:image` y `twitter:image` para apuntar a la URL versionada.
+3. Re-ejecuta validadores (LinkedIn Inspector + Meta Debugger + X Validator + Pinterest URL Debugger).
+4. Si WhatsApp mantiene caché antigua, comparte una URL nueva de página (por ejemplo con parámetro de control) para forzar nuevo scrape.
