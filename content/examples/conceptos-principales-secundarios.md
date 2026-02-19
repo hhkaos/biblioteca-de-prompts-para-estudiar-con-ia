@@ -1,3 +1,32 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 15 años, 4º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 4º ESO, 2º Bachillerato...
+
+    - key: TEMA
+      label: Tema que estás estudiando
+      type: text
+      placeholder: Ej. La célula, el Barroco, la termodinámica...
+
+    - key: ASIGNATURA
+      label: Asignatura
+      type: text
+      placeholder: Ej. Biología, Historia del Arte, Física...
+
+    - key: PEGA AQUÍ EL CONTENIDO
+      label: Contenido a analizar
+      hint: Pega aquí el texto, apuntes o fragmento del libro que quieres que analice
+      type: textarea
+      placeholder: Pega aquí tus apuntes o el texto del libro...
+---
 # Identificar conceptos principales y secundarios
 
 ## Cuándo usarlo

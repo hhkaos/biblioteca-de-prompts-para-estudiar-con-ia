@@ -1,3 +1,35 @@
+---
+wizard:
+  fields:
+    - key: OBJETIVO_O_TAREA
+      label: Objetivo o tarea a aprender
+      hint: El proceso o habilidad concreta que quieres dominar paso a paso
+      type: text
+      placeholder: Ej. aprender a resolver ecuaciones, montar un circuito básico...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 15 años, 4º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 4º ESO, 1º Bachillerato...
+
+    - key: NULA/BAJA/MEDIA/ALTA
+      label: Experiencia previa
+      type: radio
+      options:
+        - value: NULA
+          label: "Nula — empiezo desde cero"
+        - value: BAJA
+          label: "Baja — algo he visto"
+        - value: MEDIA
+          label: "Media — tengo base"
+        - value: ALTA
+          label: "Alta — quiero profundizar"
+---
 # Crear una guía interactiva
 
 ## Cuándo usarlo

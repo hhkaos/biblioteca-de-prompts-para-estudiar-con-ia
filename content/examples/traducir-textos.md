@@ -1,3 +1,39 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 16 años, 2º Bachillerato...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º Bachillerato, universitario...
+
+    - key: TEMA
+      label: Tema del texto
+      type: text
+      placeholder: Ej. biología celular, historia contemporánea, economía...
+
+    - key: IDIOMA_ORIGEN
+      label: Idioma de origen
+      hint: Solo necesario si usas la Opción A (traducción de idioma)
+      type: text
+      placeholder: Ej. inglés, francés, alemán...
+
+    - key: IDIOMA_DESTINO
+      label: Idioma de destino
+      hint: Solo necesario si usas la Opción A (traducción de idioma)
+      type: text
+      placeholder: Ej. español...
+
+    - key: PEGA AQUÍ EL TEXTO
+      label: Texto a traducir o simplificar
+      hint: Pega aquí el texto que quieres traducir o convertir en lenguaje más comprensible
+      type: textarea
+      placeholder: Pega aquí el texto...
+---
 # Traducir textos para estudiar
 
 ## Cuándo usarlo

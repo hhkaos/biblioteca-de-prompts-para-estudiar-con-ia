@@ -1,3 +1,21 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema a introducir
+      type: text
+      placeholder: Ej. Las funciones matemáticas, el sistema solar, la célula...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 13 años, 2º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º ESO, 1º Bachillerato...
+---
 # Dar contexto antes de profundizar
 
 ## Cuándo usarlo

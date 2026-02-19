@@ -28,6 +28,16 @@ const panelToggleButton = document.getElementById("panel-toggle-button");
 const aboutButtons = document.querySelectorAll("#about-button, #about-button-mobile");
 const aboutModal = document.getElementById("about-modal");
 const aboutCloseButton = document.getElementById("about-close-button");
+const wizardToggleButton = document.getElementById("wizard-toggle-button");
+const wizardToggleLabel = document.getElementById("wizard-toggle-label");
+const wizardPanel = document.getElementById("wizard-panel");
+const wizardFieldsEl = document.getElementById("wizard-fields");
+const unfilledWarningModal = document.getElementById("unfilled-warning-modal");
+const unfilledCountEl = document.getElementById("unfilled-count");
+const unfilledWarningClose = document.getElementById("unfilled-warning-close");
+const unfilledContinueEditing = document.getElementById("unfilled-continue-editing");
+const unfilledProceed = document.getElementById("unfilled-proceed");
+const unfilledWarningSkipCheckbox = document.getElementById("unfilled-warning-skip-checkbox");
 const installHelloBar = document.getElementById("install-hello-bar");
 const installFromBarButton = document.getElementById("install-from-bar-button");
 const installHelloDismissButton = document.getElementById("install-hello-dismiss-button");
@@ -44,6 +54,12 @@ const cookiePreferencesButton = document.getElementById("cookie-preferences-butt
 const searchInput = document.getElementById("search-input");
 const searchClear = document.getElementById("search-clear");
 const searchPhaseNotice = document.getElementById("search-phase-notice");
+const clearDataButton = document.getElementById("clear-data-button");
+const clearDataModal = document.getElementById("clear-data-modal");
+const clearDataClose = document.getElementById("clear-data-close");
+const clearDataCancel = document.getElementById("clear-data-cancel");
+const clearDataConfirm = document.getElementById("clear-data-confirm");
+const clearDataFieldsList = document.getElementById("clear-data-fields-list");
 
 const APP_TITLE = "Prompts Estudio";
 const DEFAULT_DESCRIPTION =
@@ -56,6 +72,8 @@ const INSTALL_COMPLETED_KEY = "prompts-estudio.install-completed";
 const UPDATE_HELLO_DISMISSED_KEY = "prompts-estudio.update-hello-dismissed";
 const SELECTED_CHATBOT_KEY = "prompts-estudio.selected-chatbot";
 const ANALYTICS_CONSENT_KEY = "prompts-estudio.analytics-consent";
+const WIZARD_SKIP_WARNING_KEY = "prompts-estudio.wizard-skip-unfilled-warning";
+const FIELD_STORAGE_PREFIX = "prompts-estudio.field.";
 const GA_MEASUREMENT_ID = "G-NFVGQ85GJN";
 const SPECIAL_COLLAB_CARD = {
   id: "__missing-example__",
@@ -134,6 +152,12 @@ let copyFeedbackTimeout = null;
 let cardElementById = new Map();
 let specialCollaborationCardElement = null;
 let modalCloseAnimationTimeout = null;
+let wizardActive = false;
+let wizardConfig = null;
+let basePromptTemplate = "";
+let unfilledWarningOnProceed = null;
+let unfilledWarningCloseAnimTimeout = null;
+let clearDataModalCloseAnimTimeout = null;
 
 const UPDATE_BUTTON_DEFAULT_HTML =
   '<i class="fa-solid fa-rotate-right icon-inline" aria-hidden="true"></i> Actualizar ahora';
@@ -318,6 +342,127 @@ function collapseRepeatedTemplate(text) {
   }
 
   return normalized;
+}
+
+function parseYamlScalar(str) {
+  if (!str) return "";
+  str = str.trim();
+  if (
+    (str.startsWith('"') && str.endsWith('"')) ||
+    (str.startsWith("'") && str.endsWith("'"))
+  ) {
+    return str.slice(1, -1);
+  }
+  return str;
+}
+
+/**
+ * Minimal YAML parser for wizard frontmatter.
+ * Handles the specific 4-level structure used in wizard configs with 2-space indentation.
+ * Supports: root objects, nested objects, arrays of objects, scalars (quoted/unquoted).
+ */
+function parseSimpleYaml(yamlStr) {
+  const result = {};
+  let currentRoot = null;
+  let currentL2Array = null;
+  let currentField = null;
+  let currentSubArray = null;
+  let currentOption = null;
+
+  for (const raw of yamlStr.split("\n")) {
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    const indent = raw.search(/\S/);
+
+    if (indent === 0) {
+      if (trimmed.endsWith(":") && !trimmed.includes(": ")) {
+        const key = trimmed.slice(0, -1);
+        result[key] = {};
+        currentRoot = result[key];
+        currentL2Array = null;
+        currentField = null;
+        currentSubArray = null;
+        currentOption = null;
+      } else if (trimmed.includes(": ")) {
+        const ci = trimmed.indexOf(": ");
+        result[trimmed.slice(0, ci)] = parseYamlScalar(trimmed.slice(ci + 2));
+      }
+    } else if (indent === 2 && currentRoot !== null) {
+      if (trimmed.endsWith(":") && !trimmed.includes(": ")) {
+        const key = trimmed.slice(0, -1);
+        currentRoot[key] = [];
+        currentL2Array = currentRoot[key];
+        currentField = null;
+      } else if (trimmed.includes(": ")) {
+        const ci = trimmed.indexOf(": ");
+        currentRoot[trimmed.slice(0, ci)] = parseYamlScalar(trimmed.slice(ci + 2));
+      }
+    } else if (indent === 4 && currentL2Array !== null) {
+      if (trimmed.startsWith("- ")) {
+        const content = trimmed.slice(2).trim();
+        currentField = {};
+        currentL2Array.push(currentField);
+        currentSubArray = null;
+        currentOption = null;
+        if (content.includes(": ")) {
+          const ci = content.indexOf(": ");
+          currentField[content.slice(0, ci).trim()] = parseYamlScalar(content.slice(ci + 2));
+        }
+      }
+    } else if (indent === 6 && currentField !== null) {
+      if (trimmed.endsWith(":") && !trimmed.includes(": ")) {
+        const key = trimmed.slice(0, -1);
+        currentField[key] = [];
+        currentSubArray = currentField[key];
+        currentOption = null;
+      } else if (trimmed.includes(": ")) {
+        const ci = trimmed.indexOf(": ");
+        currentField[trimmed.slice(0, ci).trim()] = parseYamlScalar(trimmed.slice(ci + 2));
+      }
+    } else if (indent === 8 && currentSubArray !== null) {
+      if (trimmed.startsWith("- ")) {
+        const content = trimmed.slice(2).trim();
+        currentOption = {};
+        currentSubArray.push(currentOption);
+        if (content.includes(": ")) {
+          const ci = content.indexOf(": ");
+          currentOption[content.slice(0, ci).trim()] = parseYamlScalar(content.slice(ci + 2));
+        }
+      }
+    } else if (indent === 10 && currentOption !== null) {
+      if (trimmed.includes(": ")) {
+        const ci = trimmed.indexOf(": ");
+        currentOption[trimmed.slice(0, ci).trim()] = parseYamlScalar(trimmed.slice(ci + 2));
+      }
+    }
+  }
+
+  return result;
+}
+
+function parseMarkdownWithFrontmatter(text) {
+  if (!text.startsWith("---\n") && !text.startsWith("---\r\n")) {
+    return { wizardConfig: null, markdown: text };
+  }
+  const closingIdx = text.indexOf("\n---", 4);
+  if (closingIdx === -1) {
+    return { wizardConfig: null, markdown: text };
+  }
+  const yamlStr = text.slice(4, closingIdx);
+  const markdown = text.slice(closingIdx + 4).replace(/^\r?\n/, "");
+
+  let parsedWizardConfig = null;
+  try {
+    const parsed = parseSimpleYaml(yamlStr);
+    if (parsed && parsed.wizard && Array.isArray(parsed.wizard.fields) && parsed.wizard.fields.length > 0) {
+      parsedWizardConfig = parsed.wizard;
+    }
+  } catch (e) {
+    console.warn("Failed to parse wizard frontmatter:", e);
+  }
+
+  return { wizardConfig: parsedWizardConfig, markdown };
 }
 
 function ensureMetaTag(attr, key) {
@@ -608,15 +753,10 @@ function writeUrlState({ phaseId, exampleId, tabId }, { mode = "push" } = {}) {
 
   if (exampleId) {
     url.searchParams.set("example", exampleId);
-    if (VALID_TABS.has(tabId)) {
-      url.searchParams.set("tab", tabId);
-    } else {
-      url.searchParams.delete("tab");
-    }
   } else {
     url.searchParams.delete("example");
-    url.searchParams.delete("tab");
   }
+  url.searchParams.delete("tab");
 
   const next = `${url.pathname}${url.search}${url.hash}`;
   const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -790,6 +930,201 @@ function setStoredBoolean(key, value) {
   } catch (_error) {
     // Ignore storage failures (private mode / blocked storage).
   }
+}
+
+// ── Wizard field persistence ────────────────────────
+
+function saveFieldValue(key, value) {
+  try {
+    if (value) {
+      window.localStorage.setItem(FIELD_STORAGE_PREFIX + key, value);
+    } else {
+      window.localStorage.removeItem(FIELD_STORAGE_PREFIX + key);
+    }
+  } catch (_error) {
+    // Ignore storage failures (private mode / blocked storage).
+  }
+}
+
+function getSavedFields() {
+  const result = {};
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(FIELD_STORAGE_PREFIX)) {
+        const fieldKey = k.slice(FIELD_STORAGE_PREFIX.length);
+        result[fieldKey] = window.localStorage.getItem(k) || "";
+      }
+    }
+  } catch (_error) {
+    // Ignore.
+  }
+  return result;
+}
+
+function hasSavedFields() {
+  return Object.keys(getSavedFields()).length > 0;
+}
+
+function clearAllSavedFields() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(FIELD_STORAGE_PREFIX)) keysToRemove.push(k);
+    }
+    keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+  } catch (_error) {
+    // Ignore.
+  }
+}
+
+function updateClearDataButton() {
+  if (!clearDataButton) return;
+  clearDataButton.classList.toggle("hidden", !hasSavedFields());
+}
+
+function applySavedFieldsToText(text) {
+  const saved = getSavedFields();
+  let result = text;
+  for (const [key, val] of Object.entries(saved)) {
+    if (!val) continue;
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    result = result.replace(new RegExp(`\\[${escapedKey}\\]`, "g"), val);
+  }
+  return result;
+}
+
+function saveWizardFieldValues() {
+  if (!wizardFieldsEl) return;
+
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="text"], textarea, select')) {
+    const key = el.dataset.wizardKey;
+    if (key) saveFieldValue(key, el.value.trim());
+  }
+
+  const radioValues = {};
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="radio"]:checked')) {
+    const key = el.dataset.wizardKey;
+    if (key) radioValues[key] = el.value;
+  }
+  for (const [key, val] of Object.entries(radioValues)) {
+    saveFieldValue(key, val);
+  }
+
+  const checkboxValues = {};
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="checkbox"]:checked')) {
+    const key = el.dataset.wizardKey;
+    if (key) {
+      if (!checkboxValues[key]) checkboxValues[key] = [];
+      checkboxValues[key].push(el.value);
+    }
+  }
+  for (const [key, vals] of Object.entries(checkboxValues)) {
+    saveFieldValue(key, vals.join("/"));
+  }
+
+  updateClearDataButton();
+}
+
+function restoreSavedFieldValues() {
+  if (!wizardFieldsEl) return;
+  const saved = getSavedFields();
+  if (Object.keys(saved).length === 0) return;
+
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="text"], textarea, select')) {
+    const key = el.dataset.wizardKey;
+    if (key && saved[key] !== undefined) el.value = saved[key];
+  }
+
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="radio"]')) {
+    const key = el.dataset.wizardKey;
+    if (key && saved[key] !== undefined) el.checked = el.value === saved[key];
+  }
+
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="checkbox"]')) {
+    const key = el.dataset.wizardKey;
+    if (key && saved[key] !== undefined) {
+      const savedVals = saved[key].split("/");
+      el.checked = savedVals.includes(el.value);
+    }
+  }
+}
+
+// ── Clear-data modal ─────────────────────────────────
+
+function showClearDataModal() {
+  const saved = getSavedFields();
+  if (clearDataFieldsList) {
+    const entries = Object.entries(saved);
+    if (entries.length === 0) {
+      clearDataFieldsList.innerHTML = '<li class="saved-fields-empty">No hay datos guardados.</li>';
+    } else {
+      clearDataFieldsList.innerHTML = entries
+        .map(
+          ([key, val]) =>
+            `<li class="saved-field-item"><span class="saved-field-key">${escapeHtml(key)}</span><span class="saved-field-value">${escapeHtml(val)}</span></li>`
+        )
+        .join("");
+    }
+  }
+  modalLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  clearDataModal.classList.remove("hidden");
+  clearDataModal.classList.remove("is-open");
+  requestAnimationFrame(() => {
+    clearDataModal.classList.add("is-open");
+  });
+  document.body.style.overflow = "hidden";
+  if (clearDataClose) clearDataClose.focus();
+}
+
+function closeClearDataModal() {
+  if (!clearDataModal || clearDataModal.classList.contains("hidden")) return;
+  clearDataModal.classList.remove("is-open");
+
+  const finish = () => {
+    clearDataModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    clearDataModalCloseAnimTimeout = null;
+  };
+
+  if (prefersReducedMotion()) {
+    finish();
+  } else {
+    if (clearDataModalCloseAnimTimeout) window.clearTimeout(clearDataModalCloseAnimTimeout);
+    clearDataModalCloseAnimTimeout = window.setTimeout(finish, MODAL_ANIMATION_MS);
+  }
+
+  if (modalLastFocus) {
+    modalLastFocus.focus();
+    modalLastFocus = null;
+  }
+}
+
+if (clearDataButton) {
+  clearDataButton.addEventListener("click", () => showClearDataModal());
+}
+
+if (clearDataClose) {
+  clearDataClose.addEventListener("click", () => closeClearDataModal());
+}
+
+if (clearDataCancel) {
+  clearDataCancel.addEventListener("click", () => closeClearDataModal());
+}
+
+if (clearDataConfirm) {
+  clearDataConfirm.addEventListener("click", () => {
+    clearAllSavedFields();
+    updateClearDataButton();
+    closeClearDataModal();
+  });
+}
+
+if (clearDataModal) {
+  clearDataModal.addEventListener("click", (event) => {
+    if (event.target === clearDataModal) closeClearDataModal();
+  });
 }
 
 function getStoredAnalyticsConsent() {
@@ -1312,7 +1647,7 @@ function sanitizeHandle(handle) {
   return (handle || "").trim().replace(/^@+/, "");
 }
 
-function buildExampleUrl(phaseId, exampleId, tabId = "summary") {
+function buildExampleUrl(phaseId, exampleId) {
   const url = new URL(window.location.href);
   if (phaseId) {
     url.searchParams.set("phase", phaseId);
@@ -1320,7 +1655,6 @@ function buildExampleUrl(phaseId, exampleId, tabId = "summary") {
     url.searchParams.delete("phase");
   }
   url.searchParams.set("example", exampleId);
-  url.searchParams.set("tab", VALID_TABS.has(tabId) ? tabId : "summary");
   return url.toString();
 }
 
@@ -1403,7 +1737,7 @@ function configureTelegramLink(example, exampleUrl) {
 }
 
 function updateCollaborationBar(example) {
-  const exampleUrl = buildExampleUrl(currentPhase ? currentPhase.id : "", example.id, getCurrentTabId());
+  const exampleUrl = buildExampleUrl(currentPhase ? currentPhase.id : "", example.id);
   configureMailtoLink(example, exampleUrl);
   renderSocialLinks(example, exampleUrl);
   configureTelegramLink(example, exampleUrl);
@@ -1872,7 +2206,8 @@ async function loadExample(
   { tabId = "summary", scroll = true, updateUrl = true, urlMode = "push", trackAnalytics = true } = {}
 ) {
   const res = await fetch(`../${example.file}`);
-  const markdown = await res.text();
+  const rawMarkdown = await res.text();
+  const { wizardConfig: parsedWizardConfig, markdown } = parseMarkdownWithFrontmatter(rawMarkdown);
 
   const { title, sectionMap } = parseMarkdownSections(markdown);
   const whenHtml = linesToHtml(sectionMap["Cuándo usarlo"] || []);
@@ -1903,7 +2238,9 @@ async function loadExample(
     ${gainsHtml || "<p>No definido.</p>"}
   `;
 
-  promptTextarea.value = extractPromptTemplate(markdown);
+  basePromptTemplate = extractPromptTemplate(markdown);
+  promptTextarea.value = applySavedFieldsToText(basePromptTemplate);
+  initWizard(parsedWizardConfig);
   promptTextareaAutoResizeEnabled = true;
   promptTextarea.style.overflowY = "hidden";
   promptTextarea.scrollTop = 0;
@@ -1961,19 +2298,28 @@ for (const button of detailTabs.querySelectorAll(".tab-button")) {
   });
 }
 
+function sendToAutoModeChatbot(selected, prompt) {
+  const destinationUrl = `${selected.url}${encodeURIComponent(prompt)}`;
+  window.open(destinationUrl, "_blank", "noopener,noreferrer");
+  showCopyFeedback(`Se abrió ${selected.label} con la plantilla.`);
+  trackEvent("prompt_sent_to_chatbot", {
+    chatbot_id: selected.id,
+    chatbot_mode: selected.mode,
+    example_id: currentExampleId || "none"
+  });
+}
+
 copyButton.addEventListener("click", async () => {
   const selected = getSelectedChatbot();
   const prompt = promptTextarea.value;
 
   if (selected.mode === "auto") {
-    const destinationUrl = `${selected.url}${encodeURIComponent(prompt)}`;
-    window.open(destinationUrl, "_blank", "noopener,noreferrer");
-    showCopyFeedback(`Se abrió ${selected.label} con la plantilla.`);
-    trackEvent("prompt_sent_to_chatbot", {
-      chatbot_id: selected.id,
-      chatbot_mode: selected.mode,
-      example_id: currentExampleId || "none"
-    });
+    const unfilledCnt = getUnfilledCount(prompt);
+    if (unfilledCnt > 0 && !getStoredBoolean(WIZARD_SKIP_WARNING_KEY)) {
+      showUnfilledWarning(unfilledCnt, () => sendToAutoModeChatbot(selected, prompt));
+      return;
+    }
+    sendToAutoModeChatbot(selected, prompt);
     return;
   }
 
@@ -2110,6 +2456,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeFilterTooltip();
     closeAboutModal();
+    closeUnfilledWarning();
     if (document.activeElement === searchInput && currentSearchQuery) {
       clearSearch();
       searchInput.blur();
@@ -2227,10 +2574,247 @@ async function init() {
   setupInstallExperience();
   setupUpdateExperience();
   registerServiceWorker();
+  updateClearDataButton();
   await loadData();
   clearCardsCache();
   renderPhaseRadios();
   await applyUrlState({ urlMode: "replace" });
+}
+
+// ── Wizard ────────────────────────────────────────
+
+function getUnfilledCount(text) {
+  const matches = text.match(/\[[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ0-9_/\s+]*\]/g);
+  return matches ? matches.length : 0;
+}
+
+function generateWizardForm(fields) {
+  let html = "";
+
+  fields.forEach((field, idx) => {
+    const key = field.key || "";
+    const label = field.label || key;
+    const hint = field.hint || "";
+    const type = field.type || "text";
+    const placeholder = field.placeholder || "";
+    const options = field.options || [];
+    const inputId = `wz-${idx}`;
+    const keyAttr = `data-wizard-key="${escapeHtml(key)}"`;
+    const hintHtml = hint ? `<span class="wizard-hint">${escapeHtml(hint)}</span>` : "";
+
+    if (type === "radio" || type === "checkbox") {
+      const groupItems = options
+        .map((opt, oi) => {
+          const optId = `${inputId}-${oi}`;
+          const optLabel = opt.label || opt.value;
+          return `<label class="wizard-option-label">
+            <input type="${type}" id="${optId}" name="${inputId}" value="${escapeHtml(opt.value)}" ${keyAttr}>
+            ${escapeHtml(optLabel)}
+          </label>`;
+        })
+        .join("");
+      html += `<div class="wizard-field">
+        <fieldset class="wizard-fieldset">
+          <legend class="wizard-field-label">${escapeHtml(label)}</legend>
+          <div class="wizard-${type}-group">${groupItems}</div>
+          ${hintHtml}
+        </fieldset>
+      </div>`;
+    } else if (type === "select") {
+      const optItems = options
+        .map((opt) => `<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label || opt.value)}</option>`)
+        .join("");
+      html += `<div class="wizard-field">
+        <label class="wizard-field-label" for="${inputId}">${escapeHtml(label)}</label>
+        <select id="${inputId}" ${keyAttr}>
+          <option value="">— Selecciona una opción —</option>
+          ${optItems}
+        </select>
+        ${hintHtml}
+      </div>`;
+    } else if (type === "textarea") {
+      html += `<div class="wizard-field">
+        <label class="wizard-field-label" for="${inputId}">${escapeHtml(label)}</label>
+        <textarea id="${inputId}" ${keyAttr} placeholder="${escapeHtml(placeholder)}" rows="3"></textarea>
+        ${hintHtml}
+      </div>`;
+    } else {
+      html += `<div class="wizard-field">
+        <label class="wizard-field-label" for="${inputId}">${escapeHtml(label)}</label>
+        <input type="text" id="${inputId}" ${keyAttr} placeholder="${escapeHtml(placeholder)}">
+        ${hintHtml}
+      </div>`;
+    }
+  });
+
+  return html;
+}
+
+function updatePromptFromWizard() {
+  if (!wizardFieldsEl || !basePromptTemplate) return;
+
+  let result = basePromptTemplate;
+
+  // Text inputs and selects
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="text"], textarea, select')) {
+    const key = el.dataset.wizardKey;
+    const val = el.value.trim();
+    if (key && val) {
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      result = result.replace(new RegExp(`\\[${escapedKey}\\]`, "g"), val);
+    }
+  }
+
+  // Radio groups — one selected value per key
+  const radioValues = {};
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="radio"]:checked')) {
+    const key = el.dataset.wizardKey;
+    if (key) radioValues[key] = el.value;
+  }
+  for (const [key, val] of Object.entries(radioValues)) {
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    result = result.replace(new RegExp(`\\[${escapedKey}\\]`, "g"), val);
+  }
+
+  // Checkbox groups — multiple values joined by "/"
+  const checkboxValues = {};
+  for (const el of wizardFieldsEl.querySelectorAll('input[type="checkbox"]:checked')) {
+    const key = el.dataset.wizardKey;
+    if (key) {
+      if (!checkboxValues[key]) checkboxValues[key] = [];
+      checkboxValues[key].push(el.value);
+    }
+  }
+  for (const [key, vals] of Object.entries(checkboxValues)) {
+    if (vals.length > 0) {
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      result = result.replace(new RegExp(`\\[${escapedKey}\\]`, "g"), vals.join("/"));
+    }
+  }
+
+  promptTextarea.value = result;
+  autosizePromptTextarea({ force: true });
+  saveWizardFieldValues();
+}
+
+function initWizard(config) {
+  wizardConfig = config;
+  wizardActive = false;
+
+  if (wizardPanel) wizardPanel.classList.add("hidden");
+  if (wizardFieldsEl) wizardFieldsEl.innerHTML = "";
+
+  const hasWizard = Boolean(config && Array.isArray(config.fields) && config.fields.length > 0);
+  if (wizardToggleButton) {
+    wizardToggleButton.classList.toggle("hidden", !hasWizard);
+    wizardToggleButton.classList.remove("is-active");
+  }
+  if (wizardToggleLabel) wizardToggleLabel.textContent = "Activar modo guiado";
+}
+
+function toggleWizard() {
+  wizardActive = !wizardActive;
+
+  if (wizardActive) {
+    if (wizardConfig && wizardConfig.fields) {
+      wizardFieldsEl.innerHTML = generateWizardForm(wizardConfig.fields);
+      restoreSavedFieldValues();
+      for (const el of wizardFieldsEl.querySelectorAll("input, select, textarea")) {
+        el.addEventListener("input", updatePromptFromWizard);
+        el.addEventListener("change", updatePromptFromWizard);
+      }
+      updatePromptFromWizard();
+    }
+    wizardPanel.classList.remove("hidden");
+    wizardToggleButton.classList.add("is-active");
+    wizardToggleLabel.textContent = "Desactivar modo guiado";
+  } else {
+    wizardPanel.classList.add("hidden");
+    wizardToggleButton.classList.remove("is-active");
+    wizardToggleLabel.textContent = "Activar modo guiado";
+    // Keep current textarea content (don't restore base template)
+  }
+}
+
+if (wizardToggleButton) {
+  wizardToggleButton.addEventListener("click", () => {
+    toggleWizard();
+  });
+}
+
+// ── Unfilled warning modal ─────────────────────────
+
+function showUnfilledWarning(count, onProceed) {
+  unfilledWarningOnProceed = onProceed;
+  if (unfilledCountEl) {
+    unfilledCountEl.textContent = count === 1 ? "1 campo" : `${count} campos`;
+  }
+  if (unfilledWarningSkipCheckbox) {
+    unfilledWarningSkipCheckbox.checked = false;
+  }
+  modalLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  unfilledWarningModal.classList.remove("hidden");
+  unfilledWarningModal.classList.remove("is-open");
+  requestAnimationFrame(() => {
+    unfilledWarningModal.classList.add("is-open");
+  });
+  document.body.style.overflow = "hidden";
+  if (unfilledWarningClose) unfilledWarningClose.focus();
+}
+
+function closeUnfilledWarning() {
+  if (!unfilledWarningModal || unfilledWarningModal.classList.contains("hidden")) return;
+  unfilledWarningModal.classList.remove("is-open");
+
+  const finish = () => {
+    unfilledWarningModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    unfilledWarningCloseAnimTimeout = null;
+  };
+
+  if (prefersReducedMotion()) {
+    finish();
+  } else {
+    if (unfilledWarningCloseAnimTimeout) window.clearTimeout(unfilledWarningCloseAnimTimeout);
+    unfilledWarningCloseAnimTimeout = window.setTimeout(finish, MODAL_ANIMATION_MS);
+  }
+
+  if (modalLastFocus) {
+    modalLastFocus.focus();
+    modalLastFocus = null;
+  }
+  unfilledWarningOnProceed = null;
+}
+
+if (unfilledWarningClose) {
+  unfilledWarningClose.addEventListener("click", () => {
+    closeUnfilledWarning();
+  });
+}
+
+if (unfilledContinueEditing) {
+  unfilledContinueEditing.addEventListener("click", () => {
+    closeUnfilledWarning();
+  });
+}
+
+if (unfilledProceed) {
+  unfilledProceed.addEventListener("click", () => {
+    if (unfilledWarningSkipCheckbox && unfilledWarningSkipCheckbox.checked) {
+      setStoredBoolean(WIZARD_SKIP_WARNING_KEY, true);
+    }
+    const cb = unfilledWarningOnProceed;
+    closeUnfilledWarning();
+    if (cb) cb();
+  });
+}
+
+if (unfilledWarningModal) {
+  unfilledWarningModal.addEventListener("click", (event) => {
+    if (event.target === unfilledWarningModal) {
+      closeUnfilledWarning();
+    }
+  });
 }
 
 init();

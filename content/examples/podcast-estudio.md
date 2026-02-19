@@ -1,3 +1,44 @@
+---
+wizard:
+  fields:
+    - key: RECURSO
+      label: Contenido de partida
+      hint: Pega aquí el texto, apuntes o fragmento que quieres convertir en podcast
+      type: textarea
+      placeholder: Pega aquí tus apuntes o el texto del libro...
+
+    - key: TEMA
+      label: Tema del contenido
+      type: text
+      placeholder: Ej. La mitosis, la Guerra Civil, la ley de Ohm...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 16 años, 2º Bachillerato...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º Bachillerato, 1º de carrera...
+
+    - key: CORTA/MEDIA/LARGA
+      label: Duración del podcast
+      type: radio
+      options:
+        - value: CORTA
+          label: "Corta — 5 minutos aprox."
+        - value: MEDIA
+          label: "Media — 10-15 minutos aprox."
+        - value: LARGA
+          label: "Larga — 20-30 minutos aprox."
+
+    - key: OBJETIVO
+      label: Objetivo de aprendizaje
+      hint: ¿Qué quieres que el oyente entienda al terminar?
+      type: text
+      placeholder: Ej. entender las fases de la mitosis, repasar antes del examen...
+---
 # Transformar contenido en podcast
 
 ## Cuándo usarlo

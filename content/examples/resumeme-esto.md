@@ -1,3 +1,23 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema del contenido
+      hint: De qué trata el texto que vas a compartir
+      type: text
+      placeholder: Ej. la célula, el Romanticismo, la Primera Guerra Mundial...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel del destinatario
+      hint: A quién va dirigido el resumen
+      type: text
+      placeholder: Ej. 13 años, adulto, estudiante de bachillerato...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º ESO, 1º Bachillerato...
+---
 # Resúmeme esto
 
 ## Cuándo usarlo

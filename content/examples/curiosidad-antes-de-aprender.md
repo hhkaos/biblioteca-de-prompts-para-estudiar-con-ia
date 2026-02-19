@@ -1,3 +1,24 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema de aprendizaje
+      hint: El tema sobre el que quieres despertar la curiosidad
+      type: text
+      placeholder: Ej. La Segunda Guerra Mundial, las fracciones, el cuerpo humano...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      hint: Ayuda a calibrar el lenguaje y los ejemplos
+      type: text
+      placeholder: Ej. 13 años, adulto, universitario...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      hint: El nivel académico actual
+      type: text
+      placeholder: Ej. 2º ESO, 1º Bachillerato, FP...
+---
 # Despertar la curiosidad antes de aprender
 
 ## Cuándo usarlo

@@ -1,3 +1,45 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 14 años, 3º ESO, adulto...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 1º Bachillerato...
+
+    - key: CONCEPTO
+      label: Concepto que quieres entender
+      hint: El concepto abstracto o difícil que quieres conectar con algo conocido
+      type: text
+      placeholder: Ej. la mitosis, la derivada, el imperialismo...
+
+    - key: ASIGNATURA
+      label: Asignatura
+      type: text
+      placeholder: Ej. Biología, Matemáticas, Historia...
+
+    - key: DEPORTES/VIDEOJUEGOS/COCINA/MÚSICA/REDES_SOCIALES/OTRO
+      label: Mis intereses y aficiones
+      hint: La IA usará esto para crear analogías que conecten con tu mundo
+      type: select
+      options:
+        - value: DEPORTES
+          label: Deportes
+        - value: VIDEOJUEGOS
+          label: Videojuegos
+        - value: COCINA
+          label: Cocina
+        - value: MÚSICA
+          label: Música
+        - value: REDES_SOCIALES
+          label: Redes sociales
+        - value: OTRO
+          label: Otro (añade tus intereses en el textarea)
+---
 # Generar analogías o metáforas para entender mejor
 
 ## Cuándo usarlo

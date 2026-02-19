@@ -1,3 +1,54 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      hint: El perfil del estudiante
+      type: text
+      placeholder: Ej. 15 años, adulto que retoma estudios...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 2º Bachillerato, FP...
+
+    - key: VISUAL/PRACTICO/VERBAL/MIXTO
+      label: Estilo de aprendizaje
+      hint: Cómo procesas mejor la información
+      type: radio
+      options:
+        - value: VISUAL
+          label: Visual — diagramas, colores, mapas
+        - value: PRACTICO
+          label: Práctico — ejercicios, hacer y repetir
+        - value: VERBAL
+          label: Verbal — leer, explicar, escuchar
+        - value: MIXTO
+          label: Mixto — combino varios estilos
+
+    - key: ASIGNATURAS
+      label: Asignaturas que estudias
+      hint: Las materias con las que más trabajas ahora mismo
+      type: text
+      placeholder: Ej. Matemáticas, Historia, Inglés...
+
+    - key: PROBLEMA
+      label: Dificultad principal
+      hint: Lo que más te cuesta a la hora de estudiar
+      type: text
+      placeholder: Ej. me distraigo mucho, no sé por dónde empezar, me bloqueo en los exámenes...
+
+    - key: TIEMPO
+      label: Tiempo real disponible para estudiar
+      type: text
+      placeholder: Ej. 1 hora después de clase, solo los fines de semana...
+
+    - key: DESCRIPCION
+      label: Cómo estudias ahora
+      hint: Describe brevemente tu método actual
+      type: textarea
+      placeholder: Ej. leo el libro, subrayo y luego hago un esquema. Pero me cuesta concentrarme más de 20 minutos...
+---
 # Explorar técnicas de estudio
 
 ## Cuándo usarlo

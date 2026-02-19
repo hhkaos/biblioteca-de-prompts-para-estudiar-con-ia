@@ -1,3 +1,53 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema de aprendizaje
+      hint: El tema principal que quieres dominar
+      type: text
+      placeholder: Ej. Programación en Python, Historia Medieval, Cálculo...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      hint: Tu perfil como estudiante
+      type: text
+      placeholder: Ej. 16 años, adulto, estudiante de FP...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 4º ESO, 1º Bachillerato, autodidacta...
+
+    - key: CONTEXTO
+      label: Contexto de aprendizaje
+      hint: ¿Dónde y cómo estudias principalmente?
+      type: text
+      placeholder: Ej. estudio solo en casa, clases presenciales, academia...
+
+    - key: MOTIVACION
+      label: Motivación principal
+      hint: ¿Por qué quieres aprender esto?
+      type: text
+      placeholder: Ej. pasar el examen de acceso, curiosidad personal, trabajo...
+
+    - key: BAJOS/MEDIOS/ALTOS
+      label: Conocimientos previos
+      hint: ¿Cuánto sabes ya del tema? Añade un breve detalle si lo necesitas
+      type: radio
+      options:
+        - value: BAJOS
+          label: Bajos — poca o ninguna base
+        - value: MEDIOS
+          label: Medios — algunos conceptos
+        - value: ALTOS
+          label: Altos — buena base
+
+    - key: TIEMPO_SEMANAL
+      label: Tiempo disponible a la semana
+      hint: Horas aproximadas que puedes dedicar
+      type: text
+      placeholder: Ej. 3 horas a la semana, 30 minutos al día...
+---
 # Pasar de un interés a un plan de aprendizaje
 
 ## Cuándo usarlo

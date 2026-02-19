@@ -1,3 +1,27 @@
+---
+wizard:
+  fields:
+    - key: ASIGNATURA
+      label: Asignatura
+      type: text
+      placeholder: Ej. Física, Economía, Química...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 16 años, universitario...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º Bachillerato, 1º de carrera...
+
+    - key: CONCEPTO/TEMA
+      label: Concepto o tema a ilustrar
+      hint: El contenido teórico del que quieres ver aplicaciones prácticas reales
+      type: text
+      placeholder: Ej. las leyes de Newton, la oferta y demanda, los ácidos y bases...
+---
 # Generar ejemplos prácticos
 
 ## Cuándo usarlo

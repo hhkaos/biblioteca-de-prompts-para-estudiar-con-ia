@@ -1,3 +1,32 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 16 años, 2º Bachillerato...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º Bachillerato, 1º de carrera...
+
+    - key: ASIGNATURA
+      label: Asignatura del ejercicio
+      type: text
+      placeholder: Ej. Matemáticas, Física, Química...
+
+    - key: TEMA
+      label: Tema o tipo de ejercicio
+      type: text
+      placeholder: Ej. ecuaciones de segundo grado, cinemática, equilibrio químico...
+
+    - key: PEGA AQUÍ EL EJERCICIO O PROBLEMA
+      label: El ejercicio o problema
+      hint: Copia el enunciado completo del ejercicio
+      type: textarea
+      placeholder: Ej. Un tren parte de la estación A a 120 km/h...
+---
 # Resolver y explicar ejercicios o problemas
 
 ## Cuándo usarlo

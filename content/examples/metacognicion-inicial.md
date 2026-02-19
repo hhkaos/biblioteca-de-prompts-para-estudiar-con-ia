@@ -1,3 +1,33 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema que quieres aprender
+      type: text
+      placeholder: Ej. La genética, la Edad Media, las funciones...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 14 años, 3º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 1º Bachillerato...
+
+    - key: MOTIVACION
+      label: Tu motivación para aprenderlo
+      hint: ¿Por qué quieres aprender esto? ¿Es por un examen, curiosidad, un proyecto...?
+      type: text
+      placeholder: Ej. tengo examen, me lo pidieron, me genera curiosidad...
+
+    - key: CONTEXTO
+      label: Contexto de aprendizaje
+      hint: Dónde y cómo vas a estudiar este tema
+      type: text
+      placeholder: Ej. en casa solo/a, en clase con profesor/a, con tecnología...
+---
 # Entender lo que ya sabe y lo que quiere aprender
 
 ## Cuándo usarlo

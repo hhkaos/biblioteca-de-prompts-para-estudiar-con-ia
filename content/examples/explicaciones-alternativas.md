@@ -1,3 +1,39 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 14 años, 3º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 1º Bachillerato...
+
+    - key: CONCEPTO
+      label: Concepto que no entiendes
+      hint: El concepto concreto que quieres que te expliquen de otra manera
+      type: text
+      placeholder: Ej. la derivada, la fotosíntesis, los números imaginarios...
+
+    - key: ASIGNATURA
+      label: Asignatura
+      type: text
+      placeholder: Ej. Matemáticas, Biología, Física...
+
+    - key: EXPLICA LO QUE CREES QUE SABES, AUNQUE SEA POCO O INCORRECTO
+      label: Lo que crees entender hasta ahora
+      hint: Escribe tu comprensión actual aunque sea incompleta o incorrecta
+      type: textarea
+      placeholder: Ej. Creo que la derivada mide cómo cambia algo, pero no entiendo bien qué significa el resultado...
+
+    - key: DESCRIBE TU DUDA CONCRETA
+      label: Lo que no te queda claro
+      hint: El punto exacto donde te pierdes o te bloqueas
+      type: textarea
+      placeholder: Ej. No entiendo por qué cuando derivo x² obtengo 2x y no x...
+---
 # Crear explicaciones alternativas
 
 ## Cuándo usarlo

@@ -1,3 +1,51 @@
+---
+wizard:
+  fields:
+    - key: RECURSO
+      label: Recurso de partida
+      hint: El material que quieres organizar visualmente (apuntes, texto, etc.)
+      type: textarea
+      placeholder: Pega aquí tus apuntes, el texto del libro o describe el tema...
+
+    - key: TEMA
+      label: Tema
+      type: text
+      placeholder: Ej. El sistema nervioso, la Revolución Francesa...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 14 años, 3º ESO...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 1º Bachillerato...
+
+    - key: BAJOS/MEDIOS/ALTOS
+      label: Conocimientos previos
+      type: radio
+      options:
+        - value: BAJOS
+          label: "Bajos — poca o ninguna base"
+        - value: MEDIOS
+          label: "Medios — algunos conceptos"
+        - value: ALTOS
+          label: "Altos — buena base"
+
+    - key: MAPA_MENTAL/DIAGRAMA_DE_FLUJO/GRAFO/LINEA_DE_TIEMPO
+      label: Tipo de representación visual
+      type: select
+      options:
+        - value: MAPA_MENTAL
+          label: Mapa mental
+        - value: DIAGRAMA_DE_FLUJO
+          label: Diagrama de flujo
+        - value: GRAFO
+          label: Grafo de relaciones
+        - value: LINEA_DE_TIEMPO
+          label: Línea de tiempo
+---
 # Crear diagramas o mapas mentales
 
 ## Cuándo usarlo

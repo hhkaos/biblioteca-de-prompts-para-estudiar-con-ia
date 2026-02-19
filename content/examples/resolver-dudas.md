@@ -1,3 +1,38 @@
+---
+wizard:
+  fields:
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 15 años, universitario...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 4º ESO, 2º Bachillerato...
+
+    - key: TEMA
+      label: Tema que estás estudiando
+      type: text
+      placeholder: Ej. las fracciones, la fotosíntesis, el Romanticismo...
+
+    - key: ASIGNATURA
+      label: Asignatura
+      type: text
+      placeholder: Ej. Matemáticas, Biología, Literatura...
+
+    - key: ESCRIBE TU PREGUNTA LO MÁS CONCRETA POSIBLE
+      label: Tu duda concreta
+      hint: Escríbela de forma específica para obtener la mejor respuesta
+      type: textarea
+      placeholder: Ej. No entiendo por qué al multiplicar dos números negativos el resultado es positivo...
+
+    - key: EXPLICA BREVEMENTE QUÉ ESTABAS ESTUDIANDO CUANDO SURGIÓ LA DUDA
+      label: Contexto de la duda
+      hint: Qué estabas estudiando o haciendo cuando surgió esta pregunta
+      type: textarea
+      placeholder: Ej. Estaba resolviendo ejercicios del tema 3 y en el ejercicio 5 me atasco siempre...
+---
 # Encontrar respuestas a dudas
 
 ## Cuándo usarlo

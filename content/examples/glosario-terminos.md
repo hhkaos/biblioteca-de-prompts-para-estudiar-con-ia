@@ -1,3 +1,38 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema del glosario
+      hint: El área o materia de la que quieres construir vocabulario
+      type: text
+      placeholder: Ej. genética, la Revolución Francesa, análisis matemático...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel del destinatario
+      type: text
+      placeholder: Ej. 14 años, ESO, universitario...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 3º ESO, 1º Bachillerato...
+
+    - key: DESCRIPCION_BREVE
+      label: Conocimientos previos
+      hint: ¿Cuánto sabe ya el destinatario del vocabulario del tema?
+      type: text
+      placeholder: Ej. conoce los conceptos básicos pero no el vocabulario técnico...
+
+    - key: ALFABETICO/POR_IMPORTANCIA
+      label: Orden del glosario
+      hint: Cómo quieres que se ordenen los términos
+      type: radio
+      options:
+        - value: ALFABETICO
+          label: Alfabético
+        - value: POR_IMPORTANCIA
+          label: Por importancia conceptual
+---
 # Crear glosario de términos
 
 ## Cuándo usarlo

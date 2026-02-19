@@ -101,6 +101,9 @@
           <i class="fa-solid fa-circle-info icon-inline" aria-hidden="true"></i>
           Sobre la app
         </button>
+        <button id="clear-data-button" class="hero-action-link hero-action-link--danger hidden" type="button" aria-label="Gestionar datos guardados">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+        </button>
       </div>
       <p class="eyebrow">Exprimiendo la IA para aprender mejor</p>
       <h1><a class="home-link" href="./index.html">Prompts para estudiar</a></h1>
@@ -151,6 +154,13 @@
           <section id="summary-template" class="summary-template">
             <div class="editor-head">
               <h3>Plantilla editable</h3>
+              <button id="wizard-toggle-button" class="wizard-toggle-button hidden" type="button">
+                <i class="fa-solid fa-wand-magic-sparkles icon-inline" aria-hidden="true"></i>
+                <span id="wizard-toggle-label">Activar modo guiado</span>
+              </button>
+            </div>
+            <div id="wizard-panel" class="wizard-panel hidden" aria-live="polite">
+              <div id="wizard-fields" class="wizard-fields"></div>
             </div>
             <textarea id="prompt-textarea" spellcheck="false"></textarea>
             <details id="chatbot-selector" class="chatbot-selector">
@@ -253,6 +263,59 @@
           <button id="cookie-preferences-button" class="install-ghost-button modal-cookie-button" type="button">
             Cambiar preferencia de cookies
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="unfilled-warning-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="unfilled-warning-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="unfilled-warning-title">Plantilla sin personalizar</h2>
+          <button id="unfilled-warning-close" class="modal-close" type="button" aria-label="Cerrar ventana">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Esta plantilla todavía tiene <strong id="unfilled-count"></strong> sin rellenar. El chatbot intentará responder a la plantilla tal como está, lo que puede dar resultados genéricos.</p>
+          <label class="wizard-skip-label">
+            <input type="checkbox" id="unfilled-warning-skip-checkbox">
+            No volver a mostrar este aviso
+          </label>
+          <div class="modal-footer-actions">
+            <button id="unfilled-continue-editing" class="install-ghost-button" type="button">Seguir editando</button>
+            <button id="unfilled-proceed" class="install-primary-button" type="button">Enviar de todas formas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="clear-data-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="clear-data-modal-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="clear-data-modal-title">Datos guardados en este dispositivo</h2>
+          <button id="clear-data-close" class="modal-close" type="button" aria-label="Cerrar ventana">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Para ahorrarte tiempo, la app recuerda automáticamente los campos que rellenas en el modo guiado. Así, si abres otra plantilla que tenga el mismo campo, lo encontrarás ya relleno.</p>
+          <p><strong>Campos guardados actualmente:</strong></p>
+          <ul id="clear-data-fields-list" class="saved-fields-list"></ul>
+          <p class="clear-data-note clear-data-note--privacy">
+            <i class="fa-solid fa-lock icon-inline" aria-hidden="true"></i>
+            <strong>Solo en este dispositivo.</strong> Estos datos se guardan únicamente en esta aplicación y en este dispositivo. No se envían a ningún servidor ni se comparten con nadie.
+          </p>
+          <p class="clear-data-note clear-data-note--warning">
+            <i class="fa-solid fa-circle-exclamation icon-inline" aria-hidden="true"></i>
+            <strong>Si los eliminas,</strong> tendrás que volver a rellenar esos campos la próxima vez que uses el modo guiado.
+          </p>
+          <div class="modal-footer-actions">
+            <button id="clear-data-cancel" class="install-ghost-button" type="button">Cancelar</button>
+            <button id="clear-data-confirm" class="install-primary-button clear-data-confirm-btn" type="button">
+              <i class="fa-solid fa-trash-can icon-inline" aria-hidden="true"></i>
+              Eliminar datos guardados
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,3 +1,38 @@
+---
+wizard:
+  fields:
+    - key: TEMA
+      label: Tema para el que necesitas fuentes
+      type: text
+      placeholder: Ej. el cambio climático, la Segunda Guerra Mundial, el álgebra lineal...
+
+    - key: EDAD/NIVEL
+      label: Edad o nivel
+      type: text
+      placeholder: Ej. 16 años, 2º Bachillerato...
+
+    - key: CURSO
+      label: Curso o etapa educativa
+      type: text
+      placeholder: Ej. 2º Bachillerato, universitario...
+
+    - key: BAJOS/MEDIOS/ALTOS
+      label: Conocimientos previos
+      type: radio
+      options:
+        - value: BAJOS
+          label: "Bajos — poca o ninguna base"
+        - value: MEDIOS
+          label: "Medios — algunos conceptos"
+        - value: ALTOS
+          label: "Altos — buena base"
+
+    - key: OBJETIVO
+      label: Objetivo de aprendizaje
+      hint: ¿Para qué necesitas estas fuentes?
+      type: text
+      placeholder: Ej. preparar un trabajo, estudiar para el examen, profundizar por interés...
+---
 # Identificar fuentes confiables para aprender
 
 ## Cuándo usarlo
