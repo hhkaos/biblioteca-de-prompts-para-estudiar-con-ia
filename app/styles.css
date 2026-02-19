@@ -614,7 +614,9 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 5;
   max-height: 2400px;
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -632,6 +634,7 @@ h1 {
 
 .panel-right.is-hidden {
   max-height: 0;
+  overflow: hidden;
   opacity: 0;
   transform: translateY(-10px) scale(0.985);
   padding-top: 0;
@@ -747,6 +750,47 @@ h1 {
   margin: 6px 0;
 }
 
+.summary-block {
+  border: 1px solid rgba(0, 105, 92, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.summary-block + .summary-block {
+  margin-top: 10px;
+}
+
+.summary-block-toggle {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--brand-strong);
+}
+
+.summary-block-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.summary-block-toggle::after {
+  content: "▾";
+  float: right;
+  font-size: 0.78rem;
+  margin-top: 2px;
+  opacity: 0.8;
+  transition: transform 160ms ease;
+}
+
+.summary-block[open] .summary-block-toggle::after {
+  transform: rotate(180deg);
+}
+
+.summary-block-content {
+  padding: 0 12px 12px;
+}
+
 .summary-template {
   margin-top: 14px;
   padding-top: 14px;
@@ -763,6 +807,14 @@ h1 {
 
 .editor-head h3 {
   margin: 0;
+}
+
+.editor-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .chatbot-selector {
@@ -900,9 +952,22 @@ button#copy-button:focus-visible {
 }
 
 .prompt-adjustments {
-  margin-top: 10px;
+  margin: 2px 0 12px;
   padding-top: 10px;
   border-top: 1px solid var(--border);
+  overflow: hidden;
+  max-height: 520px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-height 240ms ease, opacity 220ms ease, transform 220ms ease, margin-bottom 220ms ease;
+}
+
+.prompt-adjustments.is-collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  margin-bottom: 0;
+  pointer-events: none;
 }
 
 .prompt-adjustments h3 {
@@ -923,6 +988,7 @@ button#copy-button:focus-visible {
   padding: 12px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   box-shadow: var(--shadow-1);
@@ -974,8 +1040,9 @@ button#copy-button:focus-visible {
 .collab-social-links {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
-  z-index: 20;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
   min-width: 220px;
   padding: 8px;
   border-radius: var(--radius-md);

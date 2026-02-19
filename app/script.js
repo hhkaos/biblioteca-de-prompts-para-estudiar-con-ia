@@ -13,6 +13,7 @@ const detailTabs = document.getElementById("detail-tabs");
 const tabSummary = document.getElementById("tab-summary");
 const promptTextarea = document.getElementById("prompt-textarea");
 const promptAdjustments = document.getElementById("prompt-adjustments");
+const adjustmentsToggleButton = document.getElementById("adjustments-toggle-button");
 const copyButton = document.getElementById("copy-button");
 const copyButtonLabel = document.getElementById("copy-button-label");
 const copyFeedback = document.getElementById("copy-feedback");
@@ -21,9 +22,8 @@ const chatbotSelectedLabel = document.getElementById("chatbot-selected-label");
 const chatbotOptions = document.getElementById("chatbot-options");
 const chatbotManualHelp = document.getElementById("chatbot-manual-help");
 const collaborationBar = document.getElementById("collaboration-bar");
-const collabMailto = document.getElementById("collab-mailto");
+const collabMenuLinks = document.getElementById("collab-menu-links");
 const collabSocialLinks = document.getElementById("collab-social-links");
-const collabTelegram = document.getElementById("collab-telegram");
 const panelToggleButton = document.getElementById("panel-toggle-button");
 const aboutButtons = document.querySelectorAll("#about-button, #about-button-mobile");
 const aboutModal = document.getElementById("about-modal");
@@ -96,6 +96,7 @@ const CHATBOT_DEFINITIONS = [
   { id: "deepseek", label: "DeepSeek", mode: "manual", url: "https://chat.deepseek.com/" }
 ];
 const CHATBOT_BY_ID = Object.fromEntries(CHATBOT_DEFINITIONS.map((bot) => [bot.id, bot]));
+const SOCIAL_HUB_URL = "https://links.rauljimenez.info";
 const SOCIAL_NETWORK_DEFINITIONS = [
   {
     id: "x",
@@ -153,6 +154,7 @@ let cardElementById = new Map();
 let specialCollaborationCardElement = null;
 let modalCloseAnimationTimeout = null;
 let wizardActive = false;
+let adjustmentsExpanded = false;
 let wizardConfig = null;
 let basePromptTemplate = "";
 let unfilledWarningOnProceed = null;
@@ -828,6 +830,29 @@ function resetDetail() {
   }
   copyFeedback.textContent = "";
   copyFeedback.classList.add("hidden");
+}
+
+function closeActiveExample({ updateUrl = true, urlMode = "push" } = {}) {
+  if (!currentExampleId) {
+    return;
+  }
+
+  currentExampleId = "";
+  setActiveExample("");
+  resetDetail();
+  activateTab("summary");
+  updateMetadataForPhase(currentPhase);
+
+  if (updateUrl) {
+    writeUrlState(
+      {
+        phaseId: currentPhase ? currentPhase.id : "",
+        exampleId: "",
+        tabId: getCurrentTabId()
+      },
+      { mode: urlMode }
+    );
+  }
 }
 
 function isPanelVisible() {
@@ -1658,36 +1683,90 @@ function buildExampleUrl(phaseId, exampleId) {
   return url.toString();
 }
 
+function buildMailtoUrl(example, exampleUrl) {
+  const recipient = (collaborationConfig.email || "").trim();
+  if (!recipient || recipient.includes("TU_EMAIL_AQUI")) {
+    return "";
+  }
+
+  const subject = `Sugerencia de mejora: ${example.title}`;
+  const body = `Hola,\n\nQuiero proponer una mejora para este ejemplo:\n${example.title}\n${exampleUrl}\n\nSugerencia:\n`;
+  return `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 function buildCollaborationMessage(example, exampleUrl, mentionText = "") {
-  const mentionSuffix = mentionText ? ` (${mentionText})` : "";
+  const mentionSuffix = mentionText ? ` // cc: ${mentionText}` : "";
   return `Sugerencia sobre "${example.title}" en Prompts Estudio: ${exampleUrl}${mentionSuffix}`;
 }
 
-function configureMailtoLink(example, exampleUrl) {
-  const recipient = (collaborationConfig.email || "").trim();
-  if (!recipient || recipient.includes("TU_EMAIL_AQUI")) {
-    collabMailto.href = "#";
-    collabMailto.setAttribute("aria-disabled", "true");
-    collabMailto.title = "Configura tu email en app/collab-config.js";
-    collabMailto.onclick = null;
+function buildTelegramUrl(example, exampleUrl) {
+  const username = sanitizeHandle(collaborationConfig.telegramUsername || "hhkaos");
+  const message = `Hola ${username}, tengo una sugerencia para "${example.title}": ${exampleUrl}`;
+  return `https://t.me/${username}?text=${encodeURIComponent(message)}`;
+}
+
+function createCollaborationLink({ href, label, iconClass, channel, exampleId }) {
+  const link = document.createElement("a");
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = "collab-social-link";
+  link.innerHTML = `<i class="${iconClass} icon-inline" aria-hidden="true"></i>${escapeHtml(label)}`;
+  link.addEventListener("click", () => {
+    trackEvent("collaboration_click", {
+      channel,
+      example_id: exampleId
+    });
+  });
+  return link;
+}
+
+function setupCollaborationDropdowns() {
+  if (!collaborationBar) {
     return;
   }
 
-  collabMailto.removeAttribute("aria-disabled");
-  collabMailto.removeAttribute("title");
-  const subject = `Sugerencia de mejora: ${example.title}`;
-  const body = `Hola,\n\nQuiero proponer una mejora para este ejemplo:\n${example.title}\n${exampleUrl}\n\nSugerencia:\n`;
-  const mailtoUrl = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  collabMailto.href = mailtoUrl;
-  collabMailto.onclick = () => {
-    trackEvent("collaboration_click", {
-      channel: "email",
-      example_id: example.id
+  const dropdowns = Array.from(collaborationBar.querySelectorAll(".collab-socials"));
+  if (dropdowns.length === 0) {
+    return;
+  }
+
+  for (const dropdown of dropdowns) {
+    dropdown.addEventListener("toggle", () => {
+      if (!dropdown.open) {
+        return;
+      }
+      for (const other of dropdowns) {
+        if (other !== dropdown) {
+          other.open = false;
+        }
+      }
     });
-  };
+
+    dropdown.addEventListener("focusout", () => {
+      window.setTimeout(() => {
+        if (!dropdown.contains(document.activeElement)) {
+          dropdown.open = false;
+        }
+      }, 0);
+    });
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!(event.target instanceof Node) || collaborationBar.contains(event.target)) {
+      return;
+    }
+    for (const dropdown of dropdowns) {
+      dropdown.open = false;
+    }
+  });
 }
 
 function renderSocialLinks(example, exampleUrl) {
+  if (!collabSocialLinks) {
+    return;
+  }
+
   collabSocialLinks.innerHTML = "";
   let linksCount = 0;
 
@@ -1700,19 +1779,15 @@ function renderSocialLinks(example, exampleUrl) {
     const mentionText = network.formatMention(configuredAccount);
     const message = buildCollaborationMessage(example, exampleUrl, mentionText);
 
-    const link = document.createElement("a");
-    link.href = network.buildUrl({ message, exampleUrl, account: configuredAccount });
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.className = "collab-social-link";
-    link.innerHTML = `<i class="${network.iconClass} icon-inline" aria-hidden="true"></i>${escapeHtml(network.label)}`;
-    link.addEventListener("click", () => {
-      trackEvent("collaboration_click", {
+    collabSocialLinks.appendChild(
+      createCollaborationLink({
+        href: network.buildUrl({ message, exampleUrl, account: configuredAccount }),
+        label: network.label,
+        iconClass: network.iconClass,
         channel: network.id,
-        example_id: example.id
-      });
-    });
-    collabSocialLinks.appendChild(link);
+        exampleId: example.id
+      })
+    );
     linksCount += 1;
   }
 
@@ -1724,23 +1799,52 @@ function renderSocialLinks(example, exampleUrl) {
   }
 }
 
-function configureTelegramLink(example, exampleUrl) {
-  const username = sanitizeHandle(collaborationConfig.telegramUsername || "hhkaos");
-  const message = `Hola ${username}, tengo una sugerencia para "${example.title}": ${exampleUrl}`;
-  collabTelegram.href = `https://t.me/${username}?text=${encodeURIComponent(message)}`;
-  collabTelegram.onclick = () => {
-    trackEvent("collaboration_click", {
-      channel: "telegram",
-      example_id: example.id
-    });
-  };
-}
-
 function updateCollaborationBar(example) {
+  if (!collabMenuLinks && !collabSocialLinks) {
+    collaborationBar.classList.remove("hidden");
+    return;
+  }
+
   const exampleUrl = buildExampleUrl(currentPhase ? currentPhase.id : "", example.id);
-  configureMailtoLink(example, exampleUrl);
+  const mailtoUrl = buildMailtoUrl(example, exampleUrl);
+  const telegramUrl = buildTelegramUrl(example, exampleUrl);
+
+  if (collabMenuLinks) {
+    collabMenuLinks.innerHTML = "";
+    if (mailtoUrl) {
+      collabMenuLinks.appendChild(
+        createCollaborationLink({
+          href: mailtoUrl,
+          label: "Contactar por email",
+          iconClass: "fa-regular fa-envelope",
+          channel: "email",
+          exampleId: example.id
+        })
+      );
+    }
+
+    collabMenuLinks.appendChild(
+      createCollaborationLink({
+        href: telegramUrl,
+        label: "Contactar por Telegram",
+        iconClass: "fa-brands fa-telegram",
+        channel: "telegram",
+        exampleId: example.id
+      })
+    );
+    collabMenuLinks.appendChild(
+      createCollaborationLink({
+        href: SOCIAL_HUB_URL,
+        label: "Contactar por redes sociales",
+        iconClass: "fa-solid fa-hashtag",
+        channel: "social_hub",
+        exampleId: example.id
+      })
+    );
+  }
+
   renderSocialLinks(example, exampleUrl);
-  configureTelegramLink(example, exampleUrl);
+
   collaborationBar.classList.remove("hidden");
 }
 
@@ -2076,7 +2180,10 @@ function setCurrentPhase(
     animateCards = true
   } = {}
 ) {
+  const previousPhaseId = currentPhase ? currentPhase.id : "";
   currentPhase = phase || null;
+  const nextPhaseId = currentPhase ? currentPhase.id : "";
+  const phaseChanged = previousPhaseId !== nextPhaseId;
   if (galleryTitle) {
     galleryTitle.textContent = currentPhase
       ? `Galería de ejemplos para ${currentPhase.name.toLowerCase()}`
@@ -2086,12 +2193,16 @@ function setCurrentPhase(
   renderCardsWithOptionalTransition(currentPhase, { animate: animateCards });
   setSelectedPhaseRadio(currentPhase ? currentPhase.id : "");
 
+  if (phaseChanged) {
+    closeActiveExample({ updateUrl: false });
+  }
+
   if (resetDetailPanel) {
-    currentExampleId = "";
-    setActiveExample("");
-    resetDetail();
-    activateTab("summary");
-    updateMetadataForPhase(currentPhase);
+    closeActiveExample({ updateUrl: false });
+    if (!currentExampleId) {
+      activateTab("summary");
+      updateMetadataForPhase(currentPhase);
+    }
   } else {
     setActiveExample("");
   }
@@ -2211,7 +2322,9 @@ async function loadExample(
 
   const { title, sectionMap } = parseMarkdownSections(markdown);
   const whenHtml = linesToHtml(sectionMap["Cuándo usarlo"] || []);
-  const gainsHtml = linesToHtml(sectionMap["Qué consigues"] || []);
+  const howHtml = linesToHtml(
+    sectionMap["Cómo usarlo"] || sectionMap["Como usarlo"] || sectionMap["Qué consigues"] || []
+  );
   const adjustmentsHtml = linesToHtml(sectionMap["Ajustes rápidos"] || []);
   const imagePath = example.image && example.image.trim() ? `../${encodeURI(example.image.trim())}` : "";
   const thumbnailHtml = imagePath
@@ -2232,10 +2345,18 @@ async function loadExample(
   `;
 
   tabSummary.innerHTML = `
-    <h3>Cuándo usarlo</h3>
-    ${whenHtml || "<p>No definido.</p>"}
-    <h3>Qué consigues</h3>
-    ${gainsHtml || "<p>No definido.</p>"}
+    <details class="summary-block">
+      <summary class="summary-block-toggle">Cuándo usarlo</summary>
+      <div class="summary-block-content">
+        ${whenHtml || "<p>No definido.</p>"}
+      </div>
+    </details>
+    <details class="summary-block">
+      <summary class="summary-block-toggle">Cómo usarlo</summary>
+      <div class="summary-block-content">
+        ${howHtml || "<p>No definido.</p>"}
+      </div>
+    </details>
   `;
 
   basePromptTemplate = extractPromptTemplate(markdown);
@@ -2247,13 +2368,24 @@ async function loadExample(
   autosizePromptTextarea({ force: true });
   if (adjustmentsHtml) {
     promptAdjustments.innerHTML = `
-      <h3>Ejemplo de opciones de personalización</h3>
+      <h3>Ideas de personalización</h3>
       ${adjustmentsHtml}
     `;
-    promptAdjustments.classList.remove("hidden");
+    promptAdjustments.classList.remove("hidden", "is-collapsed");
+    setAdjustmentsExpanded(false);
+    if (adjustmentsToggleButton) {
+      adjustmentsToggleButton.classList.remove("hidden");
+    }
   } else {
     promptAdjustments.innerHTML = "";
-    promptAdjustments.classList.add("hidden");
+    promptAdjustments.classList.add("hidden", "is-collapsed");
+    promptAdjustments.setAttribute("aria-hidden", "true");
+    adjustmentsExpanded = false;
+    if (adjustmentsToggleButton) {
+      adjustmentsToggleButton.classList.add("hidden");
+      adjustmentsToggleButton.classList.remove("is-active");
+      adjustmentsToggleButton.setAttribute("aria-expanded", "false");
+    }
   }
   setPanelVisibility(true);
   detailTabs.classList.remove("hidden");
@@ -2477,7 +2609,12 @@ function clearSearch() {
 }
 
 searchInput.addEventListener("input", () => {
+  const wasSearching = Boolean(currentSearchQuery);
   currentSearchQuery = searchInput.value.trim();
+  const startedSearching = !wasSearching && Boolean(currentSearchQuery);
+  if (startedSearching) {
+    closeActiveExample();
+  }
   searchClear.classList.toggle("hidden", !currentSearchQuery);
   renderCards(currentPhase);
 
@@ -2566,6 +2703,7 @@ async function init() {
   selectedChatbotId = readStoredSelectedChatbotId();
   renderChatbotOptions();
   updateChatbotUi();
+  setupCollaborationDropdowns();
   if (chatbotSelector) {
     chatbotSelector.open = false;
   }
@@ -2712,6 +2850,21 @@ function initWizard(config) {
   if (wizardToggleLabel) wizardToggleLabel.textContent = "Activar modo guiado";
 }
 
+function setAdjustmentsExpanded(expanded) {
+  adjustmentsExpanded = Boolean(expanded);
+  if (!promptAdjustments || promptAdjustments.classList.contains("hidden")) {
+    return;
+  }
+
+  promptAdjustments.classList.toggle("is-collapsed", !adjustmentsExpanded);
+  promptAdjustments.setAttribute("aria-hidden", adjustmentsExpanded ? "false" : "true");
+
+  if (adjustmentsToggleButton) {
+    adjustmentsToggleButton.classList.toggle("is-active", adjustmentsExpanded);
+    adjustmentsToggleButton.setAttribute("aria-expanded", adjustmentsExpanded ? "true" : "false");
+  }
+}
+
 function toggleWizard() {
   wizardActive = !wizardActive;
 
@@ -2739,6 +2892,12 @@ function toggleWizard() {
 if (wizardToggleButton) {
   wizardToggleButton.addEventListener("click", () => {
     toggleWizard();
+  });
+}
+
+if (adjustmentsToggleButton) {
+  adjustmentsToggleButton.addEventListener("click", () => {
+    setAdjustmentsExpanded(!adjustmentsExpanded);
   });
 }
 

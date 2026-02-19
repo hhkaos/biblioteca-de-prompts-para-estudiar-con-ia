@@ -154,11 +154,18 @@
           <section id="summary-template" class="summary-template">
             <div class="editor-head">
               <h3>Plantilla editable</h3>
-              <button id="wizard-toggle-button" class="wizard-toggle-button hidden" type="button">
-                <i class="fa-solid fa-wand-magic-sparkles icon-inline" aria-hidden="true"></i>
-                <span id="wizard-toggle-label">Activar modo guiado</span>
-              </button>
+              <div class="editor-actions">
+                <button id="wizard-toggle-button" class="wizard-toggle-button hidden" type="button">
+                  <i class="fa-solid fa-wand-magic-sparkles icon-inline" aria-hidden="true"></i>
+                  <span id="wizard-toggle-label">Activar modo guiado</span>
+                </button>
+                <button id="adjustments-toggle-button" class="wizard-toggle-button hidden" type="button">
+                  <i class="fa-solid fa-sliders icon-inline" aria-hidden="true"></i>
+                  <span>Ideas de personalización</span>
+                </button>
+              </div>
             </div>
+            <section id="prompt-adjustments" class="prompt-adjustments hidden is-collapsed" aria-hidden="true"></section>
             <div id="wizard-panel" class="wizard-panel hidden" aria-live="polite">
               <div id="wizard-fields" class="wizard-fields"></div>
             </div>
@@ -180,32 +187,24 @@
               <span id="copy-button-label">Abrir en ChatGPT</span>
             </button>
             <p id="copy-feedback" class="copy-feedback hidden" role="status" aria-live="polite"></p>
-            <section id="prompt-adjustments" class="prompt-adjustments hidden"></section>
           </section>
         </section>
 
         <section id="collaboration-bar" class="collaboration-bar hidden" aria-label="Colaborar con mejoras">
-          <a id="collab-mailto" class="collab-button" href="#" target="_blank" rel="noopener noreferrer">
-            <i class="fa-regular fa-envelope icon-inline" aria-hidden="true"></i>
-            Sugerir mejora
-          </a>
+          <details class="collab-socials">
+            <summary class="collab-button">
+              <i class="fa-regular fa-lightbulb icon-inline" aria-hidden="true"></i>
+              Sugerir mejora
+            </summary>
+            <div id="collab-menu-links" class="collab-social-links"></div>
+          </details>
           <details class="collab-socials">
             <summary class="collab-button">
               <i class="fa-solid fa-hashtag icon-inline" aria-hidden="true"></i>
-              Comentar en redes
+              Contactar por redes sociales
             </summary>
             <div id="collab-social-links" class="collab-social-links"></div>
           </details>
-          <a
-            id="collab-telegram"
-            class="collab-button"
-            href="https://t.me/hhkaos"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i class="fa-brands fa-telegram icon-inline" aria-hidden="true"></i>
-            Contactar por Telegram
-          </a>
         </section>
       </section>
     </main>
