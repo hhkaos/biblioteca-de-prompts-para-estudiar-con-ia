@@ -6,3 +6,4 @@
 - Botón de volver a la plantilla original
 - Botón de exportar o importar prompt
 - Botón de Guardar prompt personalizado con un nombre
+- Banner in app para notificaciones (y opción de suscribir a newsletter)
