@@ -68,6 +68,9 @@ Debe incluir:
 1) Nodos o bloques con títulos claros.
 2) Relaciones explícitas entre ideas.
 3) Jerarquía: principal, secundario, detalle.
+4) Si encaja, un ejemplo, caso o aplicación real conectado al mapa.
+5) Una segunda salida breve en texto lineal para quien necesite leer además de ver la estructura.
+6) Una mini guía final: cómo recorrer el mapa para estudiar de lo básico a lo avanzado.
 
 Restricciones:
 - No añadir información nueva.

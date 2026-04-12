@@ -63,6 +63,13 @@ Para cada explicación:
 - Señala la idea central en una frase.
 - Indica qué parte de mi comprensión actual es correcta y cuál hay que corregir.
 - Termina con una pregunta de comprobación para ver si lo he entendido.
+- Haz que las tres explicaciones no se repitan: cada una debe iluminar un aspecto distinto del concepto.
+- Si encaja, incluye una pequeña aplicación o situación real donde ese concepto importe.
+
+Al final:
+- dime cuál de las tres explicaciones parece encajar mejor con mi bloqueo,
+- propón un siguiente paso de estudio,
+- y añade una pregunta de metacognición sobre qué cambió en mi comprensión.
 ```
 
 ## Ajustes rápidos

@@ -76,6 +76,9 @@ Ayúdame con este formato:
 3) Un ejemplo aplicado a mi caso real.
 4) Una herramienta simple para empezar (agenda, checklist, app, etc.).
 5) Una pregunta clave previa al estudio + un error típico a evitar.
+6) Ordena las estrategias de menor a mayor esfuerzo para que el reto sea asumible.
+7) Incluye una forma de comprobar en una semana si la técnica me está funcionando.
+8) Cierra con 3 preguntas de metacognición sobre atención, comprensión y hábito.
 
 No hagas horarios rígidos y evita recomendar demasiadas cosas a la vez.
 ```

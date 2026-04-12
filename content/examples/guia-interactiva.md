@@ -53,6 +53,9 @@ Diseña una guía interactiva con:
 3) Mini reto de comprobación por paso.
 4) Errores normales y corrección rápida.
 5) Señal de "listo para pasar al siguiente nivel".
+6) Progresión de dificultad clara: inicio, práctica guiada y aplicación autónoma.
+7) Al menos una actividad de primera mano o caso real donde usar lo aprendido.
+8) Un cierre metacognitivo: qué me salió bien, dónde me atasqué y qué paso necesito repetir.
 
 No hagas explicación larga sin acciones concretas.
 ```

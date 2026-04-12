@@ -50,6 +50,9 @@ A partir del contenido que te comparto, necesito que:
 3) Organices todo en una tabla con: Concepto | Tipo (Principal/Secundario) | Por qué es importante | Relación con otros conceptos.
 4) Expliques brevemente cómo se conectan los conceptos principales entre sí.
 5) Sugiere un orden lógico para estudiarlos.
+6) Señala si alguno conviene entender con ejemplo, con comparación o con práctica.
+7) Añade una mini ruta de reto progresivo: qué dominar primero, qué contrastar después y qué aplicar al final.
+8) Cierra con 3 preguntas de autoevaluación centradas solo en los conceptos principales.
 
 Reglas:
 - Usa lenguaje claro adaptado a mi nivel.

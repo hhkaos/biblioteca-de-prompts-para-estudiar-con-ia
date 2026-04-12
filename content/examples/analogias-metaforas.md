@@ -67,6 +67,8 @@ Quiero que:
    - Señala dónde la analogía deja de funcionar (sus límites).
 3) Crea una metáfora visual que pueda dibujar o imaginar fácilmente.
 4) Compara [CONCEPTO] con otro concepto que ya conozca de la misma asignatura u otra, indicando en qué se parecen y en qué se diferencian.
+5) Ordena las analogías de la más accesible a la más exigente o precisa.
+6) Añade una pregunta de comprobación y una mini aplicación para usar la mejor analogía en un caso concreto.
 
 Reglas:
 - Las analogías deben ser precisas, no solo divertidas.

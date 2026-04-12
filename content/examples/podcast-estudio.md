@@ -63,6 +63,9 @@ Estructura obligatoria:
 3) Ejemplos concretos.
 4) Recapitulación al cierre.
 5) 3 preguntas de autoevaluación.
+6) Una progresión clara: idea básica, idea que suele confundirse y aplicación o transferencia.
+7) Al menos una escena, caso o experiencia cotidiana que ayude a visualizar el contenido.
+8) Una breve indicación de pausas para pensar o repetir en voz alta.
 
 Reglas:
 - No añadir información fuera del contenido original.

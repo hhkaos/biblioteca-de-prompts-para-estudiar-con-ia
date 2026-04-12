@@ -84,6 +84,9 @@ Quiero que:
 2) Simplifiques lenguaje cuando sea necesario.
 3) Añadas ejemplos y comparaciones cercanas.
 4) Organices la salida en formato [LISTA/PASOS/SECCIONES].
+5) Diferencies claramente lo esencial, lo ampliable y lo que suele generar confusión.
+6) Si encaja, añadas una pequeña actividad, pregunta o ejemplo de primera mano para comprobar comprensión.
+7) Ofrezcas un cierre metacognitivo con 2 preguntas: qué he entendido y qué debería releer.
 
 Restricciones:
 - No inventes información nueva.

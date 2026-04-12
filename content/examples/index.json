@@ -15,6 +15,13 @@
       "file": "content/examples/metacognicion-inicial.md"
     },
     {
+      "id": "identificar-fortalezas-e-intereses",
+      "title": "Identificar fortalezas e intereses",
+      "summary": "Para ayudar a interpretar observaciones cotidianas y detectar posibles fortalezas cognitivas e intereses.",
+      "image": "content/examples/images/identificar-fortalezas-e-intereses.webp",
+      "file": "content/examples/identificar-fortalezas-e-intereses.md"
+    },
+    {
       "id": "dar-contexto",
       "title": "Dar contexto antes de profundizar",
       "summary": "Para crear un mapa general del tema y evitar confusiones tempranas.",
@@ -145,98 +152,98 @@
       "title": "Crear canciones para memorizar",
       "summary": "Crear canciones que te ayuden a memorizar datos.",
       "image": "content/examples/images/crear-canciones-memorizar.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-canciones-memorizar.md"
     },
     {
       "id": "generar-tarjetas-estudio",
       "title": "Generar tarjetas de estudio",
       "summary": "Crear tarjetas de estudio con concepto, definición e imágenes o ejemplos para reforzar la memoria.",
       "image": "content/examples/images/generar-tarjetas-estudio.webp",
-      "status": "under-construction"
+      "file": "content/examples/generar-tarjetas-estudio.md"
     },
     {
       "id": "crear-reglas-mnemotecnicas",
       "title": "Crear reglas mnemotécnicas",
       "summary": "Diseñar reglas mnemotécnicas que faciliten recordar información clave.",
       "image": "content/examples/images/crear-reglas-mnemotecnicas.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-reglas-mnemotecnicas.md"
     },
     {
       "id": "crear-historias-memorizar",
       "title": "Crear historias para memorizar",
       "summary": "Crear historias que ayuden a memorizar de forma más natural.",
       "image": "content/examples/images/crear-historias-memorizar.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-historias-memorizar.md"
     },
     {
       "id": "crear-rimas-poemas-memorizar",
       "title": "Crear rimas o poemas para memorizar",
       "summary": "Generar rimas o poemas pegadizos para hacer más fácil y divertido memorizar.",
       "image": "content/examples/images/crear-rimas-poemas-memorizar.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-rimas-poemas-memorizar.md"
     },
     {
       "id": "llevar-la-contraria",
       "title": "Llevar la contraria",
       "summary": "Generar contrargumentos o puntos de vista alternativos para entrenar la refutación y la autocrítica.",
       "image": "content/examples/images/llevar-la-contraria.webp",
-      "status": "under-construction"
+      "file": "content/examples/llevar-la-contraria.md"
     },
     {
       "id": "preguntas-socraticas",
       "title": "Generar preguntas socráticas",
       "summary": "Proponer preguntas abiertas que desafíen supuestos, pidan definiciones y fomenten el debate con un mentor socrático.",
       "image": "content/examples/images/preguntas-socraticas.webp",
-      "status": "under-construction"
+      "file": "content/examples/preguntas-socraticas.md"
     },
     {
       "id": "analisis-multidisciplinar",
       "title": "Análisis de casos con perspectiva multi-disciplinar",
       "summary": "Cuestionar un caso práctico desde ciencia, historia, ética y derecho para detectar contradicciones o dilemas.",
       "image": "content/examples/images/analisis-multidisciplinar.webp",
-      "status": "under-construction"
+      "file": "content/examples/analisis-multidisciplinar.md"
     },
     {
       "id": "provocador-de-dudas",
       "title": "Provocador de dudas",
       "summary": "Combinar respuestas sólidas con otras deliberadamente cuestionables para entrenar la detección de errores y buenas preguntas.",
       "image": "content/examples/images/provocador-de-dudas.webp",
-      "status": "under-construction"
+      "file": "content/examples/provocador-de-dudas.md"
     },
     {
       "id": "analizar-argumentacion-y-feedback",
       "title": "Analizar argumentación y dar feedback",
       "summary": "Analizar, revisar y detectar errores para sugerir mejoras: buscar falacias, incoherencias y lagunas en la argumentación.",
       "image": "content/examples/images/analizar-argumentacion-feedback.webp",
-      "status": "under-construction"
+      "file": "content/examples/analizar-argumentacion-y-feedback.md"
     },
     {
       "id": "crear-cuestionarios-autoevaluacion",
       "title": "Crear ejercicios de autoevaluación",
       "summary": "Crear ejercicios o cuestionarios de autoevaluación (estáticos o interactivos)",
       "image": "content/examples/images/crear-cuestionarios-autoevaluacion.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-cuestionarios-autoevaluacion.md"
     },
     {
       "id": "crear-rubricas-autoevaluacion",
       "title": "Crear rúbricas de autoevaluación",
       "summary": "Diseñar rúbricas claras para autoevaluarse por criterios, niveles de logro y evidencias de mejora.",
       "image": "content/examples/images/crear-rubricas-autoevaluacion.webp",
-      "status": "under-construction"
+      "file": "content/examples/crear-rubricas-autoevaluacion.md"
     },
     {
       "id": "encontrar-temas-relacionados",
       "title": "Encontrar temas relacionados",
       "summary": "Encontrar temas relacionados y complementarios con los intereses del estudiante para descubrir otras cosas que también podría querer aprender.",
       "image": "content/examples/images/encontrar-temas-relacionados.webp",
-      "status": "under-construction"
+      "file": "content/examples/encontrar-temas-relacionados.md"
     },
     {
       "id": "buscar-ideas-nuevos-proyectos",
       "title": "Buscar ideas para nuevos proyectos",
       "summary": "Encontrar ideas de proyectos que motiven al estudiante a aprender haciendo y conectar lo aprendido con retos concretos.",
       "image": "content/examples/images/buscar-ideas-nuevos-proyectos.webp",
-      "status": "under-construction"
+      "file": "content/examples/buscar-ideas-nuevos-proyectos.md"
     }
     
   ]

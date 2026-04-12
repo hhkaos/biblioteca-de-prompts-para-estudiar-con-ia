@@ -74,6 +74,9 @@ Diseña un plan por etapas:
 3) Indicadores simples para saber si avanzo.
 4) Riesgos frecuentes y cómo corregirlos.
 5) Primera acción concreta para empezar hoy.
+6) Ajusta el reto de cada etapa para que no sea ni demasiado fácil ni desbordante.
+7) Incluye al menos una actividad práctica o de primera mano por etapa.
+8) Añade una breve revisión metacognitiva semanal: qué entendí, qué me costó y qué cambio haré.
 
 Formato: tabla breve y luego lista de acciones de la semana 1.
 ```

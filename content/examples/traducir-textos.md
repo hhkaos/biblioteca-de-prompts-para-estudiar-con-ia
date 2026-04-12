@@ -66,6 +66,9 @@ En ambos casos:
 2) Señala entre corchetes [TÉRMINO CLAVE] los conceptos importantes que conviene aprender en su forma original.
 3) Si hay términos sin traducción directa, explícalos brevemente entre paréntesis.
 4) Añade al final un mini-glosario con los 5-10 términos más relevantes del texto.
+5) Diferencia qué partes son esenciales para entender el contenido y cuáles son ampliación o matiz.
+6) Si el texto lo permite, añade un ejemplo o reformulación cercana para los pasajes más abstractos.
+7) Cierra con una pregunta de comprensión y otra de metacognición sobre qué parte sigue costando más.
 
 Texto a traducir/simplificar:
 [PEGA AQUÍ EL TEXTO]

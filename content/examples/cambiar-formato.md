@@ -82,6 +82,9 @@ Reglas:
 2) No añadas información externa.
 3) No resumas en exceso.
 4) Entrega estructura clara y ordenada.
+5) Si el formato elegido lo permite, haz visible qué es principal, qué es secundario y qué se puede usar para repaso rápido.
+6) Añade una mini guía de uso: cómo estudiar con este nuevo formato y qué tipo de tarea facilita mejor.
+7) Cierra con una pregunta de comprobación y otra de metacognición.
 ```
 
 ## Ajustes rápidos

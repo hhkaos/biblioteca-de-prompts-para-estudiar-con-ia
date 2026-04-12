@@ -56,11 +56,13 @@ Para cada término incluye:
 3) Analogía o comparación.
 4) Términos con los que suele confundirse.
 5) Sinónimos/antónimos cuando aplique.
+6) Una pista para distinguirlo de términos parecidos.
 
 Formato final:
 - Opción A: solo términos esenciales.
 - Opción B: versión completa por categorías.
 - Orden: [ALFABETICO/POR_IMPORTANCIA].
+- Cierra con 5 preguntas breves para comprobar si ya sé usar los términos y no solo reconocerlos.
 ```
 
 ## Ajustes rápidos

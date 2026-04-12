@@ -38,6 +38,9 @@ Quiero que la explicación incluya:
 3) Para qué sirve cada parte.
 4) Errores o confusiones típicas al empezar.
 5) 5 preguntas de curiosidad que me ayuden a profundizar.
+6) Un ejemplo cercano o situación real donde este tema importe de verdad.
+7) Dos formas de representarlo: explicación breve y esquema o lista jerárquica.
+8) Una pregunta de comprobación y una de metacognición sobre qué parte me parece más difícil.
 
 Usa lenguaje simple, sin asumir conocimientos previos.
 ```

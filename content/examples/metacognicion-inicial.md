@@ -51,8 +51,10 @@ Guíame con un proceso breve de metacognición inicial:
 2) Ayúdame a identificar qué parte del tema me interesa más.
 3) Propón 3 subtemas o ramas para empezar.
 4) Recomiéndame una forma de estudiar según mi perfil.
+5) Incluye una pregunta que conecte el tema con una experiencia, ejemplo cercano o decisión real.
+6) Distingue entre lo que parece recuerdo superficial y lo que muestra comprensión real.
 
-Cierra con una síntesis de "punto de partida" en 6-8 líneas.
+Cierra con una síntesis de "punto de partida" en 6-8 líneas y una mini propuesta de primer paso, segundo paso y señal de avance.
 ```
 
 ## Ajustes rápidos

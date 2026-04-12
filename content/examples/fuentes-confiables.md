@@ -57,10 +57,13 @@ Quiero que:
 3) Clasifiques cada recurso por uso: introducción, práctica, profundización.
 4) Indiques señales de alerta para descartar fuentes dudosas.
 5) Priorización final: "empieza por aquí" en 3 pasos.
+6) Si hay varios enfoques posibles sobre el tema, procura incluir variedad real de perspectivas o formatos.
+7) Para 3 fuentes, indica una tarea concreta que podría hacer con ellas: leer, comparar, practicar o tomar notas.
+8) Cierra con 3 preguntas de metacognición para revisar si una fuente me ayuda a entender, aplicar o cuestionar mejor el tema.
 
 Evita recomendar contenido sin autoría clara o sin respaldo experto.
 ```
 
 ## Ajustes rápidos
-- Añade restricción: `incluye solo recursos en español` xxx.
+- Añade restricción: `incluye solo recursos en español`.
 - Si necesitas rapidez, pide: `dame solo top 5 con máxima relación calidad/tiempo`.

@@ -61,6 +61,8 @@ Necesito que:
 3) Indiques si mi duda está relacionada con algún concepto previo que quizá no domino bien (y si es así, explícalo brevemente).
 4) Pongas un ejemplo que ilustre la respuesta.
 5) Sugieras una pregunta de seguimiento para profundizar.
+6) Si encaja, muestra una segunda forma de entenderlo: analogía, contraste o mini caso real.
+7) Termina con una comprobación breve y una pregunta de metacognición sobre qué parte de la duda era la más importante.
 
 Reglas:
 - Si mi duda parte de una idea equivocada, corrígela con amabilidad antes de responder.

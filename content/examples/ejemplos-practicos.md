@@ -51,6 +51,9 @@ Necesito que:
    - Indica qué pasaría si no se aplicara (consecuencia).
 
 3) Propón un mini-experimento o actividad que pueda hacer yo mismo/a para ver el concepto en acción.
+4) Ordena los ejemplos de más cercano a más complejo o sorprendente.
+5) Añade una comparación breve entre dos ejemplos para mostrar qué cambia y qué se mantiene.
+6) Cierra con 3 preguntas de metacognición: cuál entiendo mejor, cuál me cuesta explicar y dónde podría observarlo por mi cuenta.
 
 Reglas:
 - Los ejemplos deben ser verificables y reales, no inventados.

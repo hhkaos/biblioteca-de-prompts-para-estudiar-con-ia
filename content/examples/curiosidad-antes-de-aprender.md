@@ -42,6 +42,8 @@ No quiero una explicación técnica todavía. Quiero que me ayudes a:
 3) Conectar el tema con cosas que ya conozco.
 4) Ver para qué me puede servir ahora y en el futuro.
 5) Recibir 3 ideas para hacerlo más divertido al estudiarlo.
+6) Plantear una pregunta sorprendente, una situación real y un pequeño reto inicial que me hagan querer seguir.
+7) Terminar con 3 preguntas de curiosidad y 2 de metacognición: qué creo que ya sé y qué me gustaría descubrir.
 
 Usa lenguaje claro, ejemplos concretos y comparaciones fáciles de entender para mi nivel.
 ```

@@ -40,11 +40,14 @@ Tu respuesta debe incluir:
 2) Ideas clave en viñetas.
 3) Tabla con: Concepto | Definición | Ejemplo real | Consejo de estudio.
 4) Dudas frecuentes que podrían aparecer al estudiar este contenido.
+5) Una mini secuencia de reto progresivo: qué debería entender primero, qué después y qué podría aplicar.
+6) Una pregunta de comprobación por bloque y 2 preguntas finales de metacognición.
 
 Reglas:
 - Prioriza claridad sobre tecnicismo.
 - No inventes información fuera del texto proporcionado.
 - Señala explícitamente qué es principal y qué es secundario.
+- Si el texto lo permite, conecta al menos una idea con una situación real o cotidiana.
 ```
 
 ## Ajustes rápidos

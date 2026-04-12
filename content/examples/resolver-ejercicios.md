@@ -63,6 +63,9 @@ En ambos métodos:
 1) Empieza identificando qué tipo de problema es.
 2) Señala qué conocimientos previos se necesitan.
 3) Si hay varias formas de resolverlo, menciona las alternativas.
+4) Distingue entre el paso más básico, el paso que suele atascar y el paso de transferencia a ejercicios parecidos.
+5) Si el problema lo permite, conecta la resolución con una situación real o interpretación práctica.
+6) Termina con una pregunta metacognitiva: qué parte entendí de verdad y cuál todavía sigo imitando.
 
 Ejercicio:
 [PEGA AQUÍ EL EJERCICIO O PROBLEMA]
