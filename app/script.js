@@ -77,6 +77,7 @@ const UPDATE_HELLO_DISMISSED_KEY = "prompts-estudio.update-hello-dismissed";
 const SELECTED_CHATBOT_KEY = "prompts-estudio.selected-chatbot";
 const ANALYTICS_CONSENT_KEY = "prompts-estudio.analytics-consent";
 const WIZARD_SKIP_WARNING_KEY = "prompts-estudio.wizard-skip-unfilled-warning";
+const WIZARD_PREFERENCE_PREFIX = "prompts-estudio.wizard-active.";
 const FIELD_STORAGE_PREFIX = "prompts-estudio.field.";
 const GA_MEASUREMENT_ID = "G-NFVGQ85GJN";
 const SPECIAL_COLLAB_CARD = {
@@ -1026,6 +1027,43 @@ function getStoredBoolean(key) {
 function setStoredBoolean(key, value) {
   try {
     window.localStorage.setItem(key, value ? "true" : "false");
+  } catch (_error) {
+    // Ignore storage failures (private mode / blocked storage).
+  }
+}
+
+function getWizardPreferenceKey(exampleId) {
+  return `${WIZARD_PREFERENCE_PREFIX}${String(exampleId || "").trim()}`;
+}
+
+function getStoredWizardPreference(exampleId) {
+  const key = getWizardPreferenceKey(exampleId);
+  if (!exampleId) {
+    return null;
+  }
+
+  try {
+    const value = window.localStorage.getItem(key);
+    if (value === "true") {
+      return true;
+    }
+    if (value === "false") {
+      return false;
+    }
+  } catch (_error) {
+    // Ignore storage failures (private mode / blocked storage).
+  }
+
+  return null;
+}
+
+function setStoredWizardPreference(exampleId, value) {
+  if (!exampleId) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(getWizardPreferenceKey(exampleId), value ? "true" : "false");
   } catch (_error) {
     // Ignore storage failures (private mode / blocked storage).
   }
@@ -3030,6 +3068,13 @@ function initWizard(config) {
     wizardToggleButton.classList.remove("is-active");
   }
   if (wizardToggleLabel) wizardToggleLabel.textContent = "Activar modo guiado";
+
+  if (!hasWizard) {
+    return;
+  }
+
+  const storedPreference = getStoredWizardPreference(currentExampleId);
+  setWizardActive(storedPreference !== null ? storedPreference : true, { persist: false });
 }
 
 function setAdjustmentsExpanded(expanded) {
@@ -3047,8 +3092,8 @@ function setAdjustmentsExpanded(expanded) {
   }
 }
 
-function toggleWizard() {
-  wizardActive = !wizardActive;
+function setWizardActive(active, { persist = true } = {}) {
+  wizardActive = Boolean(active);
 
   if (wizardActive) {
     if (wizardConfig && wizardConfig.fields) {
@@ -3069,6 +3114,14 @@ function toggleWizard() {
     wizardToggleLabel.textContent = "Activar modo guiado";
     // Keep current textarea content (don't restore base template)
   }
+
+  if (persist) {
+    setStoredWizardPreference(currentExampleId, wizardActive);
+  }
+}
+
+function toggleWizard() {
+  setWizardActive(!wizardActive);
 }
 
 if (wizardToggleButton) {
